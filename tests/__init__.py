@@ -217,7 +217,6 @@ class NovaFunctionalTest(FunctionalTest):
 
     def tearDown(self):
         super(NovaFunctionalTest, self).tearDown()
-
         # For now, don't tear down user and tenants?
         #self.kc.users.get(self.TEST_USER).delete()
         #self.kc.tenants.get(self.TEST_ALT_TENANT).delete()
@@ -234,4 +233,3 @@ class NovaFunctionalTest(FunctionalTest):
             tries += 1
             if tries == max_tries:
                 raise
-

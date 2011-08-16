@@ -32,10 +32,6 @@ from pprint import pprint
 
 import tests
 
-import novaclient.client
-import novaclient.keystone
-import novaclient.v1_1.client
-
 
 class TestNovaFloatingIps(tests.NovaFunctionalTest):
     def setUp(self):
