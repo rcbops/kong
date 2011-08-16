@@ -19,6 +19,7 @@ import ConfigParser
 from hashlib import md5
 import nose.plugins.skip
 import os
+import subprocess
 import unittest2
 from xmlrpclib import Server
 
@@ -233,3 +234,16 @@ class NovaFunctionalTest(FunctionalTest):
             tries += 1
             if tries == max_tries:
                 raise
+
+    def ping(self, ip):
+        cmd = "ping -c 1 %s" % ip
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        process.wait()
+        return (0 == process.returncode)
+
+    def is_pingable(addr, timeout=20):
+        for i in xrange(0, timeout):
+            if self.ping(addr):
+                return True
+            time.sleep(1)
+        return False

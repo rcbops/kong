@@ -53,7 +53,7 @@ class TestNovaFloatingIps(tests.NovaFunctionalTest):
     def tearDown(self):
         super(TestNovaFloatingIps, self).tearDown()
 
-    def ping(self, floating):
+    def remote_ping(self, floating):
         # FIXME(ja): should be checking for one or other...
         # if floating.fixed_ip or floating.instance_id:
         TEST_PING = "ping -c 1 rackspace.com"
@@ -95,7 +95,7 @@ class TestNovaFloatingIps(tests.NovaFunctionalTest):
                 try:
                     print 'TEST', s
                     ip.associate(s)
-                    self.ping(ip)
+                    self.remote_ping(ip)
                     self.metadata(ip)
                     ip.disassociate()
                 except Exception, e:
