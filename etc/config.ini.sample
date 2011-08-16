@@ -23,6 +23,10 @@ port = 8774
 apiver = v1.1
 user = admin
 key = 24BD8F71-6AD8-439D-B722-7E2E25FD1911
+floating_ip_count = 5
+server_count = 10
+image_id = 3
+flavor_id = 1
 
 [keystone]
 host = 10.0.0.100
@@ -30,3 +34,4 @@ port = 5000
 apiver = v1.1
 user = admin
 password = password
+tenant = admin

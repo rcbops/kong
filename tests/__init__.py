@@ -22,6 +22,11 @@ import os
 import unittest2
 from xmlrpclib import Server
 
+import novaclient.client
+import novaclient.keystone
+import novaclient.v1_1.client
+
+
 NOVA_DATA = {}
 GLANCE_DATA = {}
 SWIFT_DATA = {}
@@ -114,6 +119,10 @@ class FunctionalTest(unittest2.TestCase):
             self.nova['ver'] = self.config['nova']['apiver']
             self.nova['user'] = self.config['nova']['user']
             self.nova['key'] = self.config['nova']['key']
+            self.nova['flavor_id'] = self.config['nova']['flavor_id']
+            self.nova['image_id'] = self.config['nova']['image_id']
+            self.nova['server_count'] = int(self.config['nova']['server_count'])
+            self.nova['floating_ip_count'] = int(self.config['nova']['floating_ip_count'])
 
         if 'keystone' in self.config:
             self.keystone['host'] = self.config['keystone']['host']
@@ -121,6 +130,8 @@ class FunctionalTest(unittest2.TestCase):
             self.keystone['apiver'] = self.config['keystone']['apiver']
             self.keystone['user'] = self.config['keystone']['user']
             self.keystone['pass'] = self.config['keystone']['password']
+            self.keystone['password'] = self.config['keystone']['password']
+            self.keystone['tenant'] = self.config['keystone']['tenant']
 
     def _md5sum_file(self, path):
         md5sum = md5()
@@ -157,3 +168,70 @@ class FunctionalTest(unittest2.TestCase):
             for value in parser.options(section):
                 self.config[section][value] = parser.get(section, value)
                 # print "%s = %s" % (value, parser.get(section, value))
+
+
+class NovaFunctionalTest(FunctionalTest):
+    def setUp(self):
+        super(NovaFunctionalTest, self).setUp()
+        auth_url = "http://%s:%s/v2.0/" % (self.config['keystone']['host'],
+                                           self.config['keystone']['port'])
+
+        self.TEST_USER = "TEST_USER"
+        self.TEST_PW = "TEST_PW"
+        self.TEST_EMAIL = "test@email.com"
+        self.TEST_TENANT = "TEST_TENANT"
+        self.TEST_ALT_TENANT = "TEST_ALT_TENANT"
+
+        conn = novaclient.client.HTTPClient(self.keystone['user'],
+                                            self.keystone['password'],
+                                            self.keystone['tenant'],
+                                            auth_url)
+        kc = novaclient.keystone.Client(conn)
+
+        try:
+            kc.tenants.get(self.TEST_TENANT)
+        except:
+            kc.tenants.create(self.TEST_TENANT)
+
+        try:
+            test_user = kc.users.get(self.TEST_USER)
+        except:
+            test_user = kc.users.create(self.TEST_USER,
+                                        self.TEST_PW,
+                                        self.TEST_EMAIL,
+                                        self.TEST_TENANT)
+
+        try:
+            rcb = kc.tenants.get(self.TEST_ALT_TENANT)
+        except:
+            rcb = kc.tenants.create(self.TEST_ALT_TENANT)
+
+        if not test_user in kc.users.list(self.TEST_ALT_TENANT):
+            rcb.add_user(test_user)
+
+        self.kc = kc
+        self.novacli = novaclient.v1_1.client.Client(self.TEST_USER,
+                                                     self.TEST_PW,
+                                                     self.TEST_ALT_TENANT,
+                                                     auth_url)
+
+    def tearDown(self):
+        super(NovaFunctionalTest, self).tearDown()
+
+        # For now, don't tear down user and tenants?
+        #self.kc.users.get(self.TEST_USER).delete()
+        #self.kc.tenants.get(self.TEST_ALT_TENANT).delete()
+        #self.kc.tenants.get(self.TEST_TENANT).delete()
+
+    def ssh(self, host, username='root', password='password', max_tries=2):
+        tries = 0
+        try:
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(IgnorePolicy())
+            client.connect(host, username=username, password=password, timeout=5)
+            return client
+        except (paramiko.AuthenticationException, paramiko.SSHException):
+            tries += 1
+            if tries == max_tries:
+                raise
+
