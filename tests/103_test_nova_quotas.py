@@ -42,35 +42,52 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
                 'injected_files': 5, 'injected_file_content_bytes': 10240,
                 'id': self.TEST_ALT_TENANT}
 
-    def setUp(self):
-        super(TestNovaQuotas, self).setUp()
-        self.admincli.quotas.update(self.TEST_ALT_TENANT, 
+    def reset_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
             instances=10, cores=20, ram=51200, volumes=10,
             floating_ips=10, metadata_items=128, gigabytes=1000,
             injected_files=5, injected_file_content_bytes=10240)
 
+    def setUp(self):
+        super(TestNovaQuotas, self).setUp()
+        self.reset_quotas()
+
     def tearDown(self):
         super(TestNovaQuotas, self).tearDown()
-        self.admincli.quotas.update(self.TEST_ALT_TENANT, 
-            instances=10, cores=20, ram=51200, volumes=10,
-            floating_ips=10, metadata_items=128, gigabytes=1000,
-            injected_files=5, injected_file_content_bytes=10240)
+        self.reset_quotas()
 
     def test_001_test_quota_defaults(self):
         quota_set = self.novacli.quotas.defaults(self.TEST_ALT_TENANT)
         self.assertEqual(quota_set._info, self.raw_quota())
-    
+
     def test_002_test_quota_get_as_authorized_user(self):
         quota_set = self.novacli.quotas.get(self.TEST_ALT_TENANT)
         self.assertEqual(quota_set._info, self.raw_quota())
-    
+
     def test_003_test_quota_get_as_unauthorized_user(self):
         try:
             self.novacli.quotas.get(self.TEST_TENANT)
         except novacli_exceptions.Forbidden as e:
             self.assertEqual(str(e), 'Forbidden (HTTP 403)')
-    
+
     def test_004_test_quota_update(self):
         self.admincli.quotas.update(self.TEST_ALT_TENANT, volumes=999)
         quota_set = self.admincli.quotas.get(self.TEST_ALT_TENANT)
         self.assertEqual(quota_set.volumes, 999)
+
+    def test_005_test_instance_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT, instances=1)
+
+        # launch 2 instances using ami-tty, and m1.tiny
+        servers = []
+        for i in range(2):
+            try:
+                servers.append(self.novacli.servers.create('test_%s' % i,
+                                                            3, 1))
+            except novacli_exceptions.ClientException as e:
+                self.assertEqual(e.message.split(":")[0],
+                                 "InstanceLimitExceeded")
+        # cleanup created servers
+        for server in servers:
+            self.novacli.servers.delete(server)
+        self.reset_quotas()
