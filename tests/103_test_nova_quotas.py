@@ -89,23 +89,6 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
         # Set instance limit for testing.
         self.admincli.quotas.update(self.TEST_ALT_TENANT,
                                     instances=self.INSTANCE_LIMIT)
-        with self.assertRaises(novacli_exceptions.ClientException):
-            servers = []
-            # launch 2 instances using ami-tty, and m1.tiny
-            for i in xrange(2):
-                servers.append(self.novacli.servers.create('kong_%s' % i,
-                                                            3, 1))
-            self.assertEqual(len(servers), self.INSTANCE_LIMIT)
-    
-        # cleanup created servers
-        for server in servers:
-            self.novacli.servers.delete(server)
-        self.reset_quotas()
-
-    def test_005_test_instance_quotas(self):
-        # Set instance limit for testing.
-        self.admincli.quotas.update(self.TEST_ALT_TENANT,
-                                    instances=self.INSTANCE_LIMIT)
         servers = []
         with self.assertRaises(novacli_exceptions.ClientException):
             # launch 2 instances using ami-tty, and m1.tiny
