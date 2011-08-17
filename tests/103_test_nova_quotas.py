@@ -36,6 +36,16 @@ import tests
 
 class TestNovaQuotas(tests.NovaFunctionalTest):
 
+    INSTANCE_LIMIT = 1
+    CORE_LIMIT = 1
+    RAM_LIMIT = 1
+    VOLUME_LIMIT = 1
+    FLOATING_IP_LIMIT = 1
+    GIGABYTE_LIMIT = 1
+    INJECTED_FILE_LIMIT = 1
+    INJECTED_CONTENT_BYTE_LIMIT = 1
+    METADATA_LIMIT = 1
+
     def raw_quota(self):
         return {'instances': 10, 'cores': 20, 'ram': 51200, 'volumes': 10,
                 'floating_ips': 10, 'metadata_items': 128, 'gigabytes': 1000,
@@ -76,17 +86,17 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
         self.assertEqual(quota_set.volumes, 999)
 
     def test_005_test_instance_quotas(self):
-        self.admincli.quotas.update(self.TEST_ALT_TENANT, instances=1)
-
-        # launch 2 instances using ami-tty, and m1.tiny
-        servers = []
-        for i in range(2):
-            try:
-                servers.append(self.novacli.servers.create('test_%s' % i,
+        # Set instance limit for testing.
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
+                                    instances=self.INSTANCE_LIMIT)
+        with self.assertRaises(novacli_exceptions.ClientException):
+            servers = []
+            # launch 2 instances using ami-tty, and m1.tiny
+            for i in xrange(2):
+                servers.append(self.novacli.servers.create('kong_%s' % i,
                                                             3, 1))
-            except novacli_exceptions.ClientException as e:
-                self.assertEqual(e.message.split(":")[0],
-                                 "InstanceLimitExceeded")
+            self.assertEqual(len(servers), self.INSTANCE_LIMIT)
+
         # cleanup created servers
         for server in servers:
             self.novacli.servers.delete(server)
