@@ -185,11 +185,11 @@ class NovaFunctionalTest(FunctionalTest):
         self.TEST_TENANT = "TEST_TENANT"
         self.TEST_ALT_TENANT = "TEST_ALT_TENANT"
 
-        conn = novaclient.client.HTTPClient(self.keystone['user'],
-                                            self.keystone['password'],
-                                            self.keystone['tenant'],
-                                            auth_url)
-        kc = novaclient.keystone.Client(conn)
+        admincli = novaclient.client.HTTPClient(self.keystone['user'],
+                                                self.keystone['password'],
+                                                self.keystone['tenant'],
+                                                auth_url)
+        kc = novaclient.keystone.Client(admincli)
 
         try:
             kc.tenants.get(self.TEST_TENANT)
@@ -213,6 +213,7 @@ class NovaFunctionalTest(FunctionalTest):
             rcb.add_user(test_user)
 
         self.kc = kc
+        self.admincli = admincli
         self.novacli = novaclient.v1_1.client.Client(self.TEST_USER,
                                                      self.TEST_PW,
                                                      self.TEST_ALT_TENANT,
