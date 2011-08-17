@@ -92,10 +92,32 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
         servers = []
         with self.assertRaises(novacli_exceptions.ClientException):
             # launch 2 instances using ami-tty, and m1.tiny
-            for i in xrange(2):
+            for i in xrange(5):
                 servers.append(self.novacli.servers.create('kong_%s' % i,
                                                             3, 1))
         self.assertEqual(len(servers), self.INSTANCE_LIMIT)
+        # cleanup created servers
+        for server in servers:
+            self.novacli.servers.delete(server)
+        self.reset_quotas()
+
+    def test_006_test_ram_quotas(self):
+        # NOTE(jakedahn): nova currently doesnt respect ram quotas, this test
+        # should be expected to fail.
+
+        # fake items
+        active_ram = 51200
+
+        # Set instance limit for testing.
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
+                                    ram=self.RAM_LIMIT)
+        servers = []
+        with self.assertRaises(novacli_exceptions.ClientException):
+            # launch 2 instances using ami-tty, and m1.large
+            for i in xrange(2):
+                servers.append(self.novacli.servers.create('kong_%s' % i,
+                                                            3, 1))
+        self.assertEqual(active_ram, self.RAM_LIMIT)
         # cleanup created servers
         for server in servers:
             self.novacli.servers.delete(server)
