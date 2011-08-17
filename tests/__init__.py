@@ -20,6 +20,7 @@ from hashlib import md5
 import nose.plugins.skip
 import os
 import subprocess
+import time
 import unittest2
 from xmlrpclib import Server
 
@@ -236,12 +237,12 @@ class NovaFunctionalTest(FunctionalTest):
                 raise
 
     def ping(self, ip):
-        cmd = "ping -c 1 %s" % ip
+        cmd = "ping -W 1 -c 1 %s" % ip
         process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         process.wait()
         return (0 == process.returncode)
 
-    def is_pingable(addr, timeout=20):
+    def is_pingable(self, addr, timeout=30):
         for i in xrange(0, timeout):
             if self.ping(addr):
                 return True

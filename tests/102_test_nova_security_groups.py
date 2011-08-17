@@ -38,8 +38,8 @@ class TestNovaSecurityGroups(tests.NovaFunctionalTest):
     def setUp(self):
         super(TestNovaSecurityGroups, self).setUp()
         # using the default security group for now...
-        self.TEST_GROUP_NAME = "default"
-        self.TEST_GROUP_DESC = "default_desc"
+        self.TEST_GROUP_NAME = "test_group"
+        self.TEST_GROUP_DESC = "test_group_desc"
         for group in self.novacli.security_groups.list():
             group.delete()
 
@@ -55,24 +55,55 @@ class TestNovaSecurityGroups(tests.NovaFunctionalTest):
         with self.assertRaises(novacli_exceptions.NotFound):
             self.novacli.security_groups.get(group.id)
 
-    def test_002_test_security_group_rules(self):
-        group = self.novacli.security_groups.create(self.TEST_GROUP_NAME,
-                                                    self.TEST_GROUP_DESC)
+    def test_002_test_default_security_group_rules(self):
+        group = None
+        # grab default security group
+        for g in self.novacli.security_groups.list():
+            if g.name == 'default':
+                group = g
+        self.assertTrue(group)
 
-        self.assertTrue(self.novacli.security_groups.get(group.id))
+        # clear all rules in default group
+        for r in group.rules:
+            self.novacli.security_group_rules.delete(r.id)
 
+        # allow ping
         rule = self.novacli.security_group_rules.create(group.id,
                                                         'icmp',
                                                         '-1',
                                                         '-1',
                                                         '0.0.0.0/0')
 
+        # launch server (uses default security group)
         server = self.novacli.servers.create(name="sgtest%s" % random.random(),
                                              flavor=self.nova['flavor_id'],
                                              image=self.nova['image_id'])
 
-        addr = server.addresses[0]['addr']
-        self.assertTrue(self.is_pingable(addr))
+        time.sleep(1)
 
+        # ensure floating_ips exist
+        for i in range(self.nova['floating_ip_count'] - len(self.novacli.floating_ips.list())):
+            self.novacli.floating_ips.create()
+
+        # get a floating ip (they should all be free)
+        fip = self.novacli.floating_ips.list()[0]
+
+        # refresh server data to get ip
+        server = self.novacli.servers.get(server.id)
+
+        # associate public ip
+        fip.associate(server)
+
+        # verify that we can now ping
+        self.assertTrue(self.is_pingable(fip.ip))
+
+        # revoke rule
+        self.novacli.security_group_rules.delete(rule.id)
+        time.sleep(5)
+
+        # verify that we can no longer ping
+        self.assertFalse(self.is_pingable(fip.ip, 2))
+
+        # cleanup
         server.delete()
         group.delete()
