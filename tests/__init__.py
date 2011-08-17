@@ -19,6 +19,9 @@ import ConfigParser
 from hashlib import md5
 import nose.plugins.skip
 import os
+import paramiko
+import subprocess
+import time
 import unittest2
 from xmlrpclib import Server
 
@@ -223,6 +226,10 @@ class NovaFunctionalTest(FunctionalTest):
         #self.kc.tenants.get(self.TEST_TENANT).delete()
 
     def ssh(self, host, username='root', password='password', max_tries=2):
+        class IgnorePolicy(paramiko.MissingHostKeyPolicy):
+            def missing_host_key(self, client, hostname, key):
+                pass
+
         tries = 0
         try:
             client = paramiko.SSHClient()
@@ -233,3 +240,49 @@ class NovaFunctionalTest(FunctionalTest):
             tries += 1
             if tries == max_tries:
                 raise
+
+    def ping(self, ip):
+        cmd = "ping -W 1 -c 1 %s" % ip
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+        process.wait()
+        return (0 == process.returncode)
+
+    def is_pingable(self, addr, timeout=30):
+        for i in xrange(0, timeout):
+            if self.ping(addr):
+                return True
+            time.sleep(1)
+        return False
+
+    def default_security_group(self):
+        for g in self.novacli.security_groups.list():
+            if g.name == 'default':
+                return g
+        return None
+
+    def authorize_default_security_group(self):
+        groups = self.novacli.security_groups.list()
+        has_ping = has_ssh = False
+        group = None
+        for g in groups:
+            if g.name == 'default':
+                group = g
+                for r in g.rules:
+                    if r['ip_protocol'] == 'icmp' and r['to_port'] == -1:
+                        has_ping = True
+                    if r['ip_protocol'] == 'tcp' and r['to_port'] == 22:
+                        has_ssh = True
+
+        self.assertTrue(group)
+        if not has_ping:
+            self.novacli.security_group_rules.create(group.id,
+                                                     'icmp',
+                                                     '-1',
+                                                     '-1',
+                                                     '0.0.0.0/0')
+        if not has_ssh:
+            self.novacli.security_group_rules.create(group.id,
+                                                     'tcp',
+                                                     '22',
+                                                     '22',
+                                                     '0.0.0.0/0')
