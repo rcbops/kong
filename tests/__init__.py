@@ -213,7 +213,11 @@ class NovaFunctionalTest(FunctionalTest):
             rcb.add_user(test_user)
 
         self.kc = kc
-        self.admincli = admincli
+
+        self.admincli = novaclient.v1_1.client.Client(self.keystone['user'],
+                                                      self.keystone['password'],
+                                                      self.keystone['tenant'],
+                                                      auth_url)
         self.novacli = novaclient.v1_1.client.Client(self.TEST_USER,
                                                      self.TEST_PW,
                                                      self.TEST_ALT_TENANT,
