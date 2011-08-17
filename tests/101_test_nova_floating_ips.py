@@ -48,6 +48,7 @@ class TestNovaFloatingIps(tests.NovaFunctionalTest):
                 ip.disassociate()
             except Exception:
                 pass
+        self.authorize_default_security_group()
         time.sleep(1)
 
     def tearDown(self):
@@ -56,30 +57,39 @@ class TestNovaFloatingIps(tests.NovaFunctionalTest):
     def remote_ping(self, floating):
         # FIXME(ja): should be checking for one or other...
         # if floating.fixed_ip or floating.instance_id:
-        TEST_PING = "ping -c 1 rackspace.com"
+        TEST_PING = "ping -W 1 -c 1 rackspace.com"
         try:
             ssh = self.ssh(floating.ip)
             stdin, stdout, stderr = ssh.exec_command(TEST_PING)
-            if '1 packets received' in stdout.read():
-                print "PASS PING", floating.fixed_ip, floating.ip
+            out = stdout.read()
+            print out
+            if '1 packets received' in out:
+                return True
             else:
-                print "FAIL PING", floating.fixed_ip, floating.ip
+                return False
         except Exception, e:
             print "FAIL CONNECT", floating.fixed_ip, floating.ip
+            raise
 
     def metadata(self, floating):
         # FIXME(ja): should be checking for one or other...
         # if floating.fixed_ip or floating.instance_id:
+        TEST_METADATA = "rm -f instance-id;" \
+                        "wget -q http://169.254.169.254/latest/meta-data/instance-id;" \
+                        "cat instance-id"
+
         try:
             ssh = self.ssh(floating.ip)
             stdin, stdout, stderr = ssh.exec_command(TEST_METADATA)
             # FIXME(ja): check for actual matche
+            print stdout
             if 'i-' in stdout.read():
-                print "PASS METADATA", floating.fixed_ip, floating.ip
+                return True
             else:
-                print "FAIL METADATA", floating.fixed_ip, floating.ip
+                return False
         except Exception, e:
             print "FAIL CONNECT", floating.fixed_ip, floating.ip
+            raise
 
     def check_allocated(self, ip, expected):
         if (ip.fixed_ip or ip.instance_id) is expected:
@@ -92,12 +102,10 @@ class TestNovaFloatingIps(tests.NovaFunctionalTest):
     def test_001_test_roaming_association(self):
         for ip in self.novacli.floating_ips.list():
             for s in self.novacli.servers.list():
-                try:
-                    print 'TEST', s
-                    ip.associate(s)
-                    self.remote_ping(ip)
-                    self.metadata(ip)
-                    ip.disassociate()
-                except Exception, e:
-                    print "EXCEPTION", ip, s, e
+                print 'TEST', s
+                ip.associate(s)
+                time.sleep(1)
+                self.assertTrue(self.remote_ping(ip))
+                self.assertTrue(self.metadata(ip))
+                ip.disassociate()
 

@@ -56,11 +56,8 @@ class TestNovaSecurityGroups(tests.NovaFunctionalTest):
             self.novacli.security_groups.get(group.id)
 
     def test_002_test_default_security_group_rules(self):
-        group = None
         # grab default security group
-        for g in self.novacli.security_groups.list():
-            if g.name == 'default':
-                group = g
+        group = self.default_security_group()
         self.assertTrue(group)
 
         # clear all rules in default group
