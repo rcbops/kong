@@ -71,38 +71,20 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
                    for f in self.get_all_server_flavors_info())
 
     def get_total_active_cores(self):
-        # NOTE(jakedahn): flavors api does not return cores value, stubbing
-        # for now... Uncomment the second return when it is implemented.
-
+        # NOTE(jakedahn): flavors api does not return cores value.
         return self.CORE_LIMIT
-        # return sum(f._info['cores']
-        #            for f in self.get_all_server_flavors_info())
 
     def get_total_active_injected_files(self):
-        # NOTE(jakedahn): injected files are not currently accessable,
-        # uncomment below lines when they become present in the api.
+        # NOTE(jakedahn): injected files are not currently accessable.
         return 0
-        # servers =  [self.novacli.flavors.get(server.flavor['id'])
-        #             for server in self.novacli.servers.list()]
-        # return sum(len(server._info['injected_files']) for server in servers)
 
     def get_total_active_injected_filesize(self):
-        # NOTE(jakedahn): injected filesizes are not currently accessable,
-        # uncomment below lines when they become present in the api.
+        # NOTE(jakedahn): injected filesizes are not currently accessable.
         return 0
-        # servers =  [self.novacli.flavors.get(server.flavor['id'])
-        #             for server in self.novacli.servers.list()]
-        # return sum(len(server._info['injected_file_content_bytes'])
-        #                             for server in servers)
 
     def get_metadata_item_count(self):
-        # NOTE(jakedahn): metadata is not currently accessable in the api,
-        # uncomment below lines when they become present in the api.
+        # NOTE(jakedahn): metadata is not currently accessable in the api.
         return 0
-        # servers =  [self.novacli.flavors.get(server.flavor['id'])
-        #             for server in self.novacli.servers.list()]
-        # return sum(len(server._info['injected_file_content_bytes'])
-        #                             for server in servers)
 
     def setUp(self):
         super(TestNovaQuotas, self).setUp()
@@ -152,10 +134,10 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
         self.admincli.quotas.update(self.TEST_ALT_TENANT,
                                     cores=self.CORE_LIMIT)
         with self.assertRaises(novacli_exceptions.ClientException):
-            for i in xrange(3):
+            for i in xrange(self.CORE_LIMIT+1):
                 self.novacli.servers.create('kong_%s' % i, 3, 1)
         self.assertLessEqual(self.get_total_active_cores(), self.CORE_LIMIT)
-        self.assertEqual(len(self.novacli.servers.list()), 0)
+        self.assertEqual(len(self.novacli.servers.list()), self.CORE_LIMIT)
 
     def test_008_test_injected_file_quotas(self):
         self.admincli.quotas.update(self.TEST_ALT_TENANT,
@@ -180,7 +162,6 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
         self.assertLessEqual(self.get_total_active_injected_filesize(),
                              self.INJECTED_FILESIZE_LIMIT)
         self.assertEqual(len(self.novacli.servers.list()), 0)
-
 
     def test_010_test_metadata_item_quotas(self):
         self.admincli.quotas.update(self.TEST_ALT_TENANT,
