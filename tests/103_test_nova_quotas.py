@@ -67,7 +67,7 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
                 for server in self.novacli.servers.list()]
 
     def get_total_active_ram(self):
-        return sum(f._info['ram'] 
+        return sum(f._info['ram']
                    for f in self.get_all_server_flavors_info())
 
     def get_total_active_cores(self):
@@ -103,7 +103,7 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
         #             for server in self.novacli.servers.list()]
         # return sum(len(server._info['injected_file_content_bytes'])
         #                             for server in servers)
-    
+
     def setUp(self):
         super(TestNovaQuotas, self).setUp()
         self.cleanup_instances()
@@ -114,92 +114,91 @@ class TestNovaQuotas(tests.NovaFunctionalTest):
         self.cleanup_instances()
         self.reset_quotas()
 
-    # def test_001_test_quota_defaults(self):
-    #     quota_set = self.novacli.quotas.defaults(self.TEST_ALT_TENANT)
-    #     self.assertEqual(quota_set._info, self.raw_quota())
-    # 
-    # def test_002_test_quota_get_as_authorized_user(self):
-    #     quota_set = self.novacli.quotas.get(self.TEST_ALT_TENANT)
-    #     self.assertEqual(quota_set._info, self.raw_quota())
-    # 
-    # def test_003_test_quota_get_as_unauthorized_user(self):
-    #     with self.assertRaises(novacli_exceptions.Forbidden):
-    #         self.novacli.quotas.get(self.TEST_TENANT)
-    # 
+    def test_001_test_quota_defaults(self):
+        quota_set = self.novacli.quotas.defaults(self.TEST_ALT_TENANT)
+        self.assertEqual(quota_set._info, self.raw_quota())
+
+    def test_002_test_quota_get_as_authorized_user(self):
+        quota_set = self.novacli.quotas.get(self.TEST_ALT_TENANT)
+        self.assertEqual(quota_set._info, self.raw_quota())
+
+    def test_003_test_quota_get_as_unauthorized_user(self):
+        with self.assertRaises(novacli_exceptions.Forbidden):
+            self.novacli.quotas.get(self.TEST_TENANT)
+
     def test_004_test_quota_update(self):
         self.admincli.quotas.update(self.TEST_ALT_TENANT, volumes=999)
         quota_set = self.admincli.quotas.get(self.TEST_ALT_TENANT)
         self.assertEqual(quota_set.volumes, 999)
-    
-    # def test_005_test_instance_quotas(self):
-    #     self.admincli.quotas.update(self.TEST_ALT_TENANT,
-    #                                 instances=self.INSTANCE_LIMIT)
-    #     with self.assertRaises(novacli_exceptions.ClientException):
-    #         for i in xrange(self.INSTANCE_LIMIT+1):
-    #             self.novacli.servers.create('kong_%s' % i, 3, 1)
-    #     self.assertEqual(len(self.novacli.servers.list()),
-    #                          self.INSTANCE_LIMIT)
-    # 
-    # def test_006_test_ram_quotas(self):
-    #     self.admincli.quotas.update(self.TEST_ALT_TENANT,ram=self.RAM_LIMIT)
-    #     with self.assertRaises(novacli_exceptions.ClientException):
-    #         for i in xrange(5):
-    #             self.novacli.servers.create('kong_%s' % i, 3, 1)
-    #     self.assertLessEqual(self.get_total_active_ram(), self.RAM_LIMIT)
-    #     self.assertEqual(len(self.novacli.servers.list()), 1)
-    # 
-    # def test_007_test_cores_quotas(self):
-    #     self.admincli.quotas.update(self.TEST_ALT_TENANT,
-    #                                 cores=self.CORE_LIMIT)
-    #     with self.assertRaises(novacli_exceptions.ClientException):
-    #         for i in xrange(3):
-    #             self.novacli.servers.create('kong_%s' % i, 3, 1)
-    #     self.assertLessEqual(self.get_total_active_cores(), self.CORE_LIMIT)
-    #     self.assertEqual(len(self.novacli.servers.list()), 0)
 
-    # def test_008_test_injected_file_quotas(self):
-    #     self.admincli.quotas.update(self.TEST_ALT_TENANT,
-    #                                 injected_files=self.INJECTED_FILE_LIMIT)
-    #     with self.assertRaises(novacli_exceptions.BadRequest):
-    #         inject_files = {}
-    #         for i in xrange(self.INJECTED_FILE_LIMIT+1):
-    #             inject_files['key_%d' % i] = 'value %s' % i
-    #         self.novacli.servers.create('kong_1', 3, 1, files=inject_files)
-    #     self.assertLessEqual(self.get_total_active_injected_files(),
-    #                      self.INJECTED_FILE_LIMIT)
-    #     self.assertEqual(len(self.novacli.servers.list()), 0)
+    def test_005_test_instance_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
+                                    instances=self.INSTANCE_LIMIT)
+        with self.assertRaises(novacli_exceptions.ClientException):
+            for i in xrange(self.INSTANCE_LIMIT+1):
+                self.novacli.servers.create('kong_%s' % i, 3, 1)
+        self.assertEqual(len(self.novacli.servers.list()),
+                             self.INSTANCE_LIMIT)
 
-    # def test_009_test_injected_file_size_quotas(self):
-    #     self.admincli.quotas.update(self.TEST_ALT_TENANT,
-    #                 injected_file_content_bytes=self.INJECTED_FILESIZE_LIMIT)
-    #     with self.assertRaises(novacli_exceptions.BadRequest):
-    #         inject_files = {}
-    #         for i in xrange(5):
-    #             inject_files['key_%d' % i] = 'this is a large string..%s' % i
-    #         self.novacli.servers.create('kong_1', 3, 1, files=inject_files)
-    #     self.assertLessEqual(self.get_total_active_injected_filesize(),
-    #                          self.INJECTED_FILESIZE_LIMIT)
-    #     self.assertEqual(len(self.novacli.servers.list()), 0)
+    def test_006_test_ram_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT, ram=self.RAM_LIMIT)
+        with self.assertRaises(novacli_exceptions.ClientException):
+            for i in xrange(5):
+                self.novacli.servers.create('kong_%s' % i, 3, 1)
+        self.assertLessEqual(self.get_total_active_ram(), self.RAM_LIMIT)
+        self.assertEqual(len(self.novacli.servers.list()), 1)
+
+    def test_007_test_cores_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
+                                    cores=self.CORE_LIMIT)
+        with self.assertRaises(novacli_exceptions.ClientException):
+            for i in xrange(3):
+                self.novacli.servers.create('kong_%s' % i, 3, 1)
+        self.assertLessEqual(self.get_total_active_cores(), self.CORE_LIMIT)
+        self.assertEqual(len(self.novacli.servers.list()), 0)
+
+    def test_008_test_injected_file_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
+                                    injected_files=self.INJECTED_FILE_LIMIT)
+        with self.assertRaises(novacli_exceptions.BadRequest):
+            inject_files = {}
+            for i in xrange(self.INJECTED_FILE_LIMIT+1):
+                inject_files['key_%d' % i] = 'value %s' % i
+            self.novacli.servers.create('kong_1', 3, 1, files=inject_files)
+        self.assertLessEqual(self.get_total_active_injected_files(),
+                         self.INJECTED_FILE_LIMIT)
+        self.assertEqual(len(self.novacli.servers.list()), 0)
+
+    def test_009_test_injected_file_size_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
+                    injected_file_content_bytes=self.INJECTED_FILESIZE_LIMIT)
+        with self.assertRaises(novacli_exceptions.BadRequest):
+            inject_files = {}
+            for i in xrange(5):
+                inject_files['key_%d' % i] = 'this is a large string..%s' % i
+            self.novacli.servers.create('kong_1', 3, 1, files=inject_files)
+        self.assertLessEqual(self.get_total_active_injected_filesize(),
+                             self.INJECTED_FILESIZE_LIMIT)
+        self.assertEqual(len(self.novacli.servers.list()), 0)
 
 
-    # def test_010_test_metadata_item_quotas(self):
-    #     self.admincli.quotas.update(self.TEST_ALT_TENANT,
-    #                                 metadata_items=self.METADATA_LIMIT)
-    #     with self.assertRaises(novacli_exceptions.ClientException):
-    #         metadata = {}
-    #         for i in xrange(self.METADATA_LIMIT+1):
-    #             metadata['key_%d' % i] = 'value %s' % i
-    #         self.novacli.servers.create('kong_1', 3, 1, meta=metadata)
-    #     self.assertLessEqual(self.get_metadata_item_count(),
-    #                          self.METADATA_LIMIT)
-    #     self.assertEqual(len(self.novacli.servers.list()), 0)
-    # 
-    # def test_011_test_floating_ip_quotas(self):
-    #     self.admincli.quotas.update(self.TEST_ALT_TENANT,
-    #                                 floating_ips=self.FLOATING_IP_LIMIT)
-    #     # attempt to allocate 5 floating ips to tenant, only 2 shoudl work.
-    #     with self.assertRaises(novacli_exceptions.ClientException):
-    #         for i in xrange(5):
-    #             self.novacli.floating_ips.create()
-    #     self.assertLessEqual(len(self.novacli.floating_ips.list()),
-    #                              self.FLOATING_IP_LIMIT)
+    def test_010_test_metadata_item_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
+                                    metadata_items=self.METADATA_LIMIT)
+        with self.assertRaises(novacli_exceptions.ClientException):
+            metadata = {}
+            for i in xrange(self.METADATA_LIMIT+1):
+                metadata['key_%d' % i] = 'value %s' % i
+            self.novacli.servers.create('kong_1', 3, 1, meta=metadata)
+        self.assertLessEqual(self.get_metadata_item_count(),
+                             self.METADATA_LIMIT)
+        self.assertEqual(len(self.novacli.servers.list()), 0)
+
+    def test_011_test_floating_ip_quotas(self):
+        self.admincli.quotas.update(self.TEST_ALT_TENANT,
+                                    floating_ips=self.FLOATING_IP_LIMIT)
+        with self.assertRaises(novacli_exceptions.ClientException):
+            for i in xrange(self.FLOATING_IP_LIMIT+1):
+                self.novacli.floating_ips.create()
+        self.assertLessEqual(len(self.novacli.floating_ips.list()),
+                                 self.FLOATING_IP_LIMIT)
