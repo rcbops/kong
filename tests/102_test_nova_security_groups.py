@@ -89,7 +89,7 @@ class TestNovaSecurityGroups(tests.NovaFunctionalTest):
         server = self.novacli.servers.get(server.id)
 
         # associate public ip
-        fip.associate(server)
+        server.add_floating_ip(fip)
 
         # verify that we can now ping
         self.assertTrue(self.is_pingable(fip.ip))
