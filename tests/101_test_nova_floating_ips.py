@@ -43,16 +43,13 @@ class TestNovaFloatingIps(tests.NovaFunctionalTest):
             self.novacli.servers.create(name="test %s" % random.random(),
                                 flavor=self.nova['flavor_id'], image=self.nova['image_id'])
         self.servers = self.novacli.servers.list()
-        for ip in self.novacli.floating_ips.list():
-            try:
-                ip.disassociate()
-            except Exception:
-                pass
         self.authorize_default_security_group()
         time.sleep(1)
 
     def tearDown(self):
         super(TestNovaFloatingIps, self).tearDown()
+        for server in self.novacli.servers.list():
+            server.delete()
 
     def remote_ping(self, floating):
         # FIXME(ja): should be checking for one or other...
@@ -102,10 +99,13 @@ class TestNovaFloatingIps(tests.NovaFunctionalTest):
     def test_001_test_roaming_association(self):
         for ip in self.novacli.floating_ips.list():
             for s in self.novacli.servers.list():
-                print 'TEST', s
-                ip.associate(s)
-                time.sleep(1)
+                s.add_floating_ip(ip)
+        time.sleep(1)
+        # NOTE(jakedahn): rewrote this part as a new loop, because once in the
+        # previous loop floating addresses in the servers were not updating, 
+        # and therefore failing.
+        for ip in self.novacli.floating_ips.list():
+            for s in self.novacli.servers.list():
                 self.assertTrue(self.remote_ping(ip))
                 self.assertTrue(self.metadata(ip))
-                ip.disassociate()
-
+                s.remove_floating_ip(ip.ip)
