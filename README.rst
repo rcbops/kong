@@ -26,13 +26,18 @@ Quickstart
 ----------
 
 You're going to want to make your own config.ini file in the /etc/ directory,
-it needs to point at your running cluster.
+it needs to point at your running cluster.  Also you will need to provide
+sample images:
+
+    cd sample_vms
+    curl -O http://images.ansolabs.com/tty.tgz
+    tar -zxvf tty.tgz
 
 After that try commands such as::
 
-  run_tests.sh --nova
-  run_tests.sh --glance
-  run_tests.sh --swift
+    run_tests.sh --nova
+    run_tests.sh --glance
+    run_tests.sh --swift
 
 
 Additional Info
