@@ -1,1 +1,4 @@
-You will need to download an image into this directory.. Will also need to update the tests to reference this new image.
+You need to download an image to test uploads
+
+    curl -O http://images.ansolabs.com/tty.tgz
+    tar -zxvf tty.tgz
