@@ -169,6 +169,15 @@ class FunctionalTest(unittest2.TestCase):
             ret_hash['apiver'] = self.config['glance']['apiver']
             return ret_hash
 
+        def setupDashboard(self):
+            ret_hash = {}
+            ret_hash['host'] = self.config['dashboard']['url']
+            ret_hash['admin_user'] = self.config['dashboard']['admin_user']
+            ret_hash['admin_pass'] = self.config['dashboard']['admin_password']
+            ret_hash['user'] = self.config['dashboard']['user']
+            ret_hash['pass'] = self.config['dashboard']['password']
+            return ret_hash
+
         # Parse the config file
         self.config = parse_config_file(self)
         # pprint(self.config)
@@ -181,12 +190,16 @@ class FunctionalTest(unittest2.TestCase):
             self.keystone = setupKeystone(self)
         if 'glance' in self.config:
             self.glance = setupGlance(self)
+        if 'dashboard' in self.config:
+            self.dash = setupDashboard(self)
 
         # Setup nova path shortcuts
         self.nova['auth_path'] = _gen_nova_auth_path(self)
         self.nova['path'] = _gen_nova_path(self)
         # setup nova auth token
         self.nova['X-Auth-Token'] = _generate_auth_token(self)
+
+        pprint(self.dash)
 
     @classmethod
     def tearDownClass(self):

@@ -35,3 +35,10 @@ port = 5000
 apiver = v1.1
 user = admin
 password = password
+
+[dashboard]
+url = 10.0.0.100
+admin_user = admin
+admin_password = password
+user = demo
+password = password
