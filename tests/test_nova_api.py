@@ -82,12 +82,12 @@ class TestNovaAPI(tests.FunctionalTest):
 
         # Get IP Address of newly created server
         net = data['server']['addresses'][self.config['nova']['network_label']]
-        self.nova['address'] = net
         self.result['ping'] = False
 
         if net:
             for i in net:
                 if self.ping_host(i['addr'], 5, 60):
+                    self.nova['address'] = i['addr']
                     self.result['ping'] = True
                     return self.result
         else:
@@ -537,7 +537,13 @@ class TestNovaAPI(tests.FunctionalTest):
         http = httplib2.Http()
         response, content = http.request(path, 'GET', headers=headers)
         json_return = json.loads(content)
-        pprint(json_return)
+        label = self.config['nova']['network_label']
+        self.assertTrue(json_return['server']['addresses'][label])
+        address_match = False
+        for i in json_return['server']['addresses'][label]:
+            if i['addr'] == self.nova['address']:
+                address_match = True
+        self.assertEqual(address_match, True)
     test_210_list_addresses.tags = ['nova']
 
     @tests.skip_test("Skipping multi-instance tests")
