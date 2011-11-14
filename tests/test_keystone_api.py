@@ -152,17 +152,45 @@ class TestKeystoneAPI(tests.FunctionalTest):
         self.assertEqual(response.status, 200)
     test_007_get_tenant_list.tags = ['nova', 'nova-api', 'keystone']
 
-    def test_008_get_extension_list(self):
-        path = "http://%s:%s/%s/extensions" %(self.keystone['host'],
+    def test_100_get_extension_list(self):
+        path = "http://%s:%s/%s/extensions" % (self.keystone['host'],
                                               self.keystone['admin_port'],
                                               self.keystone['apiver'])
         http = httplib2.Http()
         response, content = http.request(path,
                             'GET',
                             headers={'Content-Type': 'application/json',
-                                     'X-Auth-Token': self.nova['X-Auth-Token']
-                                    })
+                              'X-Auth-Token': self.nova['X-Auth-Token']})
         self.assertEqual(response.status, 200)
         json_return = json.loads(content)
         self.assertEqual(json_return['extensions']['values'], [])
-    test_008_get_extension_list.tags = ['nova', 'nova-api', 'keystone']
+    test_100_get_extension_list.tags = ['nova', 'nova-api', 'keystone']
+
+    def test_101_validate_token(self):
+        path = "http://%s:%s/%s/tokens/%s" % (self.keystone['host'],
+                                              self.keystone['admin_port'],
+                                              self.keystone['apiver'],
+                                              self.nova['X-Auth-Token'])
+        http = httplib2.Http()
+        response, content = http.request(path,
+                            'GET',
+                            headers={'Content-Type': 'application/json',
+                              'X-Auth-Token': self.nova['X-Auth-Token']})
+        self.assertEqual(response.status, 200)
+        json_return = json.loads(content)
+        self.assertEqual(json_return['access']['user']['username'],
+                         self.keystone['user'])
+    test_101_validate_token.tags = ['nova', 'nova-api', 'keystone']
+
+    def test_102_check_token(self):
+        path = "http://%s:%s/%s/tokens/%s" % (self.keystone['host'],
+                                              self.keystone['admin_port'],
+                                              self.keystone['apiver'],
+                                              self.nova['X-Auth-Token'])
+        http = httplib2.Http()
+        response, content = http.request(path,
+                            'HEAD',
+                            headers={'Content-Type': 'application/json',
+                              'X-Auth-Token': self.nova['X-Auth-Token']})
+        self.assertEqual(response.status, 200)
+    test_102_check_token.tags = ['nova', 'nova-api', 'keystone']
