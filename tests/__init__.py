@@ -129,7 +129,6 @@ class FunctionalTest(unittest2.TestCase):
                     response, content = http.request(post_path, 'POST',
                                                      post_data,
                                                      headers=headers)
-
                 if response.status == 200:
                     decode = json.loads(content)
                     meaningless_cruft = 'auth'
