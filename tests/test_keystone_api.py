@@ -218,7 +218,42 @@ class TestKeystoneAPI(tests.FunctionalTest):
         self.keystone['createdTenantID'] = data['tenant']['id']
     test_020_create_tenant.tags = ['nova', 'nova-api', 'keystone']
 
-    def test_990_delete_tenant(self):
+    def test_021_create_tenant_user(self):
+        path = "http://%s:%s/%s/users" % (self.keystone['host'],
+                                          self.keystone['admin_port'],
+                                          self.keystone['apiver'])
+        http = httplib2.Http()
+        headers={'Content-Type': 'application/json',
+                 'X-Auth-Token': self.nova['X-Auth-Token']}
+        post_data = json.dumps({"user": {
+                         "name": "kongadmin",
+                         "password": "kongsecrete",
+                         "tenantid": self.keystone['createdTenantID'],
+                         "email": ""}})
+        response, content = http.request(path,
+                                    'POST',
+                                    headers=headers,
+                                    body=post_data)
+        self.assertEqual(response.status, 201)
+        data = json.loads(content)
+        self.keystone['createdUserID'] = data['user']['id']
+    test_021_create_tenant_user.tags = ['nova', 'nova-api', 'keystone']
+
+    def test_998_delete_user(self):
+        path = "http://%s:%s/%s/users/%s" % (self.keystone['host'],
+                                          self.keystone['admin_port'],
+                                          self.keystone['apiver'],
+                                          self.keystone['createdUserID'])
+        http = httplib2.Http()
+        headers={'Content-Type': 'application/json',
+                 'X-Auth-Token': self.nova['X-Auth-Token']}
+        response, content = http.request(path,
+                                    'DELETE',
+                                    headers=headers)
+        self.assertEqual(response.status, 204)
+    test_998_delete_user.tags = ['nova', 'nova-api', 'keystone']
+
+    def test_999_delete_tenant(self):
         path = "http://%s:%s/%s/tenants/%s" % (self.keystone['host'],
                                             self.keystone['admin_port'],
                                             self.keystone['apiver'],
@@ -230,5 +265,4 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                     'DELETE',
                                     headers=headers)
         self.assertEqual(response.status, 204)
-    test_990_delete_tenant.tags = ['nova', 'nova-api', 'keystone']
-
+    test_999_delete_tenant.tags = ['nova', 'nova-api', 'keystone']
