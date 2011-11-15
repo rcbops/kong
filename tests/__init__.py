@@ -225,7 +225,7 @@ class FunctionalTest(unittest2.TestCase):
 
         # Parse the config file
         self.config = parse_config_file(self)
-        pprint(self.config)
+        # pprint(self.config)
 
         if 'keystone' in self.config:
             self.keystone = setupKeystone(self)
