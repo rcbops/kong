@@ -33,6 +33,7 @@ After that try commands such as::
   run_tests.sh --nova
   run_tests.sh --glance
   run_tests.sh --swift
+  run_tests.sh --keystone
 
 
 Additional Info
