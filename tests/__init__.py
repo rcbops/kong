@@ -107,7 +107,7 @@ class FunctionalTest(unittest2.TestCase):
                                              self.config['keystone']['port'],
                                              self.config['keystone']['apiver'])
             if self.config['keystone']['apiver'] == 'v2.0':
-                self.keystone['subversion'] = 'a'
+                self.keystone['subversion'] = 'diablo-d5'
 
                 body = {"passwordCredentials": {
                                       "username": self.keystone['user'],
@@ -120,7 +120,7 @@ class FunctionalTest(unittest2.TestCase):
                                  headers={'Content-Type': 'application/json'})
                 if response.status != 200:
                     # try again... with yet another 2.0 style
-                    self.keystone['subversion'] = 'b'
+                    self.keystone['subversion'] = 'diablo-final'
                     body = {"auth": {"passwordCredentials": {
                                 "username": self.keystone['user'],
                                 "password": self.keystone['pass']}}}
@@ -132,7 +132,7 @@ class FunctionalTest(unittest2.TestCase):
                 if response.status == 200:
                     decode = json.loads(content)
                     meaningless_cruft = 'auth'
-                    if self.keystone['subversion'] == 'b':
+                    if self.keystone['subversion'] == 'diablo-final':
                         meaningless_cruft = 'access'
 
                     self.keystone['catalog'] =\
@@ -152,11 +152,11 @@ class FunctionalTest(unittest2.TestCase):
                 raise Exception("Unable to get a valid token, please fix")
 
         def _endpoint_for(self, service, region, path):
-            if self.keystone['subversion'] == 'a':
+            if self.keystone['subversion'] == 'diablo-d5':
                 for k, v in enumerate(self.keystone['catalog'][service]):
                     if v['region'] == region:
                         return str(v[path])
-            elif self.keystone['subversion'] == 'b':
+            elif self.keystone['subversion'] == 'diablo-final':
                 for endpoint_list in self.keystone['catalog']:
                     if endpoint_list['name'] == service:
                         for endpoint in endpoint_list['endpoints']:
