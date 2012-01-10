@@ -107,28 +107,31 @@ class FunctionalTest(unittest2.TestCase):
                                              self.config['keystone']['port'],
                                              self.config['keystone']['apiver'])
             if self.config['keystone']['apiver'] == 'v2.0':
-                self.keystone['subversion'] = 'diablo-d5'
-
-                body = {"passwordCredentials": {
-                                      "username": self.keystone['user'],
-                                      "password": self.keystone['pass']},
-                       "tenantid": self.keystone['tenantid']}
+                # try first with d-final keystone auth.  if this fails then
+                # fallback to d5.  d5_compat test breaks the d-final first test
+                # so we try this from the newest to the oldest.
+                self.keystone['subversion'] = 'diablo-final'
+                body = {"auth": {"passwordCredentials": {
+                            "username": self.keystone['user'],
+                            "password": self.keystone['pass']}}}
                 post_path = urlparse.urljoin(path, "tokens")
                 post_data = json.dumps(body)
+                headers = {'Content-Type': 'application/json'}
                 response, content = http.request(post_path, 'POST',
-                                 post_data,
-                                 headers={'Content-Type': 'application/json'})
+                                                 post_data,
+                                                 headers=headers)
                 if response.status != 200:
                     # try again... with yet another 2.0 style
-                    self.keystone['subversion'] = 'diablo-final'
-                    body = {"auth": {"passwordCredentials": {
-                                "username": self.keystone['user'],
-                                "password": self.keystone['pass']}}}
+                    self.keystone['subversion'] = 'diablo-d5'
+                    body = {"passwordCredentials": {
+                                  "username": self.keystone['user'],
+                                  "password": self.keystone['pass']},
+                           "tenantid": self.keystone['tenantid']}
+                    post_path = urlparse.urljoin(path, "tokens")
                     post_data = json.dumps(body)
-                    headers = {'Content-Type': 'application/json'}
                     response, content = http.request(post_path, 'POST',
-                                                     post_data,
-                                                     headers=headers)
+                                 post_data,
+                                 headers={'Content-Type': 'application/json'})
                 if response.status == 200:
                     decode = json.loads(content)
                     meaningless_cruft = 'auth'
