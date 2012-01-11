@@ -200,14 +200,17 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                               self.keystone['apiver'],
                                               self.nova['X-Auth-Token'])
         http = httplib2.Http()
-        response, content = http.request(path,
+        if self.keystone['subversion'] == 'diablo-d5':
+            response, content = http.request(path,
+                            'GET',
+                            headers={'Content-Type': 'application/json',
+                              'X-Auth-Token': self.nova['X-Auth-Token']})
+        else:
+            response, content = http.request(path,
                             'HEAD',
                             headers={'Content-Type': 'application/json',
                               'X-Auth-Token': self.nova['X-Auth-Token']})
-        if self.keystone['subversion'] == 'diablo-d5':
-            pass
-        else:
-            self.assertEqual(response.status, 200)
+        self.assertEqual(response.status, 200)
     test_010_check_token.tags = ['nova', 'nova-api', 'keystone']
 
     def test_020_create_tenant(self):
@@ -215,7 +218,12 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                             self.keystone['admin_port'],
                                             self.keystone['apiver'])
         http = httplib2.Http()
-        post_data = json.dumps({"tenant": {
+        if self.keystone['subversion'] == 'diablo-d5':
+            post_data = json.dumps({"tenant": {
+                         "id": "kongtenant",
+                         "description": "description"}})
+        else:
+            post_data = json.dumps({"tenant": {
                          "name": "kongtenant",
                          "description": "description"}})
         headers={'Content-Type': 'application/json',
@@ -224,24 +232,31 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                     'POST',
                                     headers=headers,
                                     body=post_data)
-        if self.keystone['subversion'] == 'diablo-d5':
-            pass
-        else:
-            self.assertEqual(response.status, 201)
-            data = json.loads(content)
-            self.keystone['createdTenantID'] = data['tenant']['id']
+        self.assertEqual(response.status, 201)
+        data = json.loads(content)
+        self.keystone['createdTenantID'] = data['tenant']['id']
     test_020_create_tenant.tags = ['nova', 'nova-api', 'keystone']
 
     def test_021_create_tenant_user(self):
+        path = "http://%s:%s/%s/users" % (self.keystone['host'],
+                                          self.keystone['admin_port'],
+                                          self.keystone['apiver'])
+        print "path = %s" % path
+        print "setting createdTenantID = %s" % self.keystone['createdTenantID']
+        http = httplib2.Http()
+        headers={'Content-Type': 'application/json',
+                 'X-Auth-Token': self.nova['X-Auth-Token']}
         if self.keystone['subversion'] == 'diablo-d5':
-            pass
+            post_data = json.dumps({"user": {
+                             "id": "kongadmin",
+                             "password": "kongsecrete",
+                             "tenantid": self.keystone['createdTenantID'],
+                             "email": ""}})
+            response, content = http.request(path,
+                                        'PUT',
+                                        headers=headers,
+                                        body=post_data)
         else:
-            path = "http://%s:%s/%s/users" % (self.keystone['host'],
-                                              self.keystone['admin_port'],
-                                              self.keystone['apiver'])
-            http = httplib2.Http()
-            headers={'Content-Type': 'application/json',
-                     'X-Auth-Token': self.nova['X-Auth-Token']}
             post_data = json.dumps({"user": {
                              "name": "kongadmin",
                              "password": "kongsecrete",
@@ -251,41 +266,35 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                         'POST',
                                         headers=headers,
                                         body=post_data)
-            self.assertEqual(response.status, 201)
-            data = json.loads(content)
-            self.keystone['createdUserID'] = data['user']['id']
+        self.assertEqual(response.status, 201)
+        data = json.loads(content)
+        self.keystone['createdUserID'] = data['user']['id']
     test_021_create_tenant_user.tags = ['nova', 'nova-api', 'keystone']
 
     def test_998_delete_user(self):
-        if self.keystone['subversion'] == 'diablo-d5':
-            pass
-        else:
-            path = "http://%s:%s/%s/users/%s" % (self.keystone['host'],
-                                              self.keystone['admin_port'],
-                                              self.keystone['apiver'],
-                                              self.keystone['createdUserID'])
-            http = httplib2.Http()
-            headers={'Content-Type': 'application/json',
-                     'X-Auth-Token': self.nova['X-Auth-Token']}
-            response, content = http.request(path,
-                                        'DELETE',
-                                        headers=headers)
-            self.assertEqual(response.status, 204)
+        path = "http://%s:%s/%s/users/%s" % (self.keystone['host'],
+                                          self.keystone['admin_port'],
+                                          self.keystone['apiver'],
+                                          self.keystone['createdUserID'])
+        http = httplib2.Http()
+        headers={'Content-Type': 'application/json',
+                 'X-Auth-Token': self.nova['X-Auth-Token']}
+        response, content = http.request(path,
+                                    'DELETE',
+                                    headers=headers)
+        self.assertEqual(response.status, 204)
     test_998_delete_user.tags = ['nova', 'nova-api', 'keystone']
 
     def test_999_delete_tenant(self):
-        if self.keystone['subversion'] == 'diablo-d5':
-            pass
-        else:
-            path = "http://%s:%s/%s/tenants/%s" % (self.keystone['host'],
-                                                self.keystone['admin_port'],
-                                                self.keystone['apiver'],
-                                                self.keystone['createdTenantID'])
-            http = httplib2.Http()
-            headers={'Content-Type': 'application/json',
-                     'X-Auth-Token': self.nova['X-Auth-Token']}
-            response, content = http.request(path,
-                                        'DELETE',
-                                        headers=headers)
-            self.assertEqual(response.status, 204)
+        path = "http://%s:%s/%s/tenants/%s" % (self.keystone['host'],
+                                            self.keystone['admin_port'],
+                                            self.keystone['apiver'],
+                                            self.keystone['createdTenantID'])
+        http = httplib2.Http()
+        headers={'Content-Type': 'application/json',
+                 'X-Auth-Token': self.nova['X-Auth-Token']}
+        response, content = http.request(path,
+                                'DELETE',
+                                    headers=headers)
+        self.assertEqual(response.status, 204)
     test_999_delete_tenant.tags = ['nova', 'nova-api', 'keystone']
