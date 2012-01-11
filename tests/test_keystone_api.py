@@ -201,8 +201,6 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                               self.nova['X-Auth-Token'])
         http = httplib2.Http()
         if self.keystone['subversion'] == 'diablo-d5':
-            # diablo-d5 needs a get request instead of head?  does this hold
-            # true for diablo-final?
             response, content = http.request(path,
                             'GET',
                             headers={'Content-Type': 'application/json',
