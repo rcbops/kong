@@ -8,9 +8,12 @@ import unittest
 import sys
 import time
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
+
 from nose import config
 from nose import result
 from nose import core
+
 
 
 class _AnsiColorizer(object):
