@@ -6,7 +6,7 @@ class textp(object):
         self.text = text
     def __call__(self, response, data):
         if data.find(self.text) == -1:
-            self.error="text %s not found in returned data" % (self.text)
+            self.error='text %s not found in returned data' % (self.text)
             return False
         return True
 
@@ -16,7 +16,7 @@ class codep(object):
         self.code = "%s" % code
     def __call__(self, response, data):
         if response['status'] != self.code:
-            self.error = "Return code is not %s" % (self.code)
+            self.error = 'Return code of "%s" is not "%s"' % (response['status'], self.code)
             return False
         return True
 
