@@ -3,7 +3,9 @@
 from resttest.jsonrequester import JSONRequester
 
 def print_it(*args):
-    print args
+    from pprint import pprint
+    for a in args:
+        pprint(a)
     return args
 
 r= JSONRequester(request_transformers=[print_it],
