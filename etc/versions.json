@@ -1,0 +1,14 @@
+{
+    "test_020_create_tenant": {
+	"min": "diablo-final"
+    },
+    "test_021_create_tenant_user": {
+	"min": "diablo-final"
+    },
+    "test_998_delete_user": {
+	"min": "diablo-final"
+    },
+    "test_999_delete_tenant": {
+	"min": "diablo-final"
+    }
+}
