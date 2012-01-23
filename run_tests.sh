@@ -12,27 +12,13 @@ function usage {
   echo "  --nova		   Run all tests tagged as \"nova\"."
   echo "  --swift		   Run all tests tagged as \"swift\"."
   echo "  --glance		   Run all tests tagged as \"glance\"."
+  echo "  --version <version>      Run tests specific to packageset version <version> (diablo-d5, diablo-final, etc)"
   echo "  -h, --help               Print this usage message"
   echo ""
   echo "Note: with no options specified, the script will try to run the tests in a virtual environment,"
   echo "      If no virtualenv is found, the script will ask if you would like to create one.  If you "
   echo "      prefer to run tests NOT in a virtual environment, simply pass the -N option."
   exit
-}
-
-function process_option {
-  case "$1" in
-    -h|--help) usage;;
-    -V|--virtual-env) let always_venv=1; let never_venv=0;;
-    -N|--no-virtual-env) let always_venv=0; let never_venv=1;;
-    -f|--force) let force=1;;
-    -p|--pep8) let just_pep8=1;;
-    --keystone) noseargs="$noseargs -a tags=keystone";;
-    --nova) noseargs="$noseargs -a tags=nova";;
-    --glance) noseargs="$noseargs -a tags=glance";;
-    --swift) noseargs="$noseargs -a tags=swift";;
-    *) noseargs="$noseargs $1"
-  esac
 }
 
 venv=.kong-venv
@@ -44,8 +30,21 @@ noseargs=
 wrapper=""
 just_pep8=0
 
-for arg in "$@"; do
-  process_option $arg
+while [ ${#@} -gt 0 ]; do
+  case "$1" in
+    -h|--help) usage;;
+    -V|--virtual-env) let always_venv=1; let never_venv=0;;
+    -N|--no-virtual-env) let always_venv=0; let never_venv=1;;
+    -f|--force) let force=1;;
+    -p|--pep8) let just_pep8=1;;
+    --keystone) noseargs="$noseargs -a tags=keystone";;
+    --nova) noseargs="$noseargs -a tags=nova";;
+    --glance) noseargs="$noseargs -a tags=glance";;
+    --swift) noseargs="$noseargs -a tags=swift";;
+    -v|--version) noseargs="$noseargs --package-set=$2"; shift;;
+    *) noseargs="$noseargs $1"
+  esac
+  shift
 done
 
 function run_tests {
