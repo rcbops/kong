@@ -80,7 +80,18 @@ class FunctionalTest(unittest2.TestCase):
     def setUpClass(self):
         # Setup project hashes
         self.rabbitmq = {}
-
+        try:
+            self.__class__.tags
+            methods = [ self.__getattribute__(m) for m in self.__dict__.keys()
+                        if callable(self.getattribute(m)) and
+                        not m.find("_") == 0 ]
+            for m in methods:
+                try:
+                    m.tags
+                except AttributeError:
+                    m.tags = self.__class__.tags
+        except AttributeError:
+            pass
         #TODO: need to move this stuff out to util files
         def parse_config_file(self):
             cfg = os.path.abspath(os.path.join(os.path.dirname(__file__),
