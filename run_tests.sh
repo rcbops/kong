@@ -41,9 +41,17 @@ while [ ${#@} -gt 0 ]; do
     --nova) noseargs="$noseargs -a tags=nova";;
     --glance) noseargs="$noseargs -a tags=glance";;
     --swift) noseargs="$noseargs -a tags=swift";;
-    -v|--version) noseargs="$noseargs --package-set=$2"; shift;;
+    -v|--version)
+	  if [ "$2" == "" ]; then
+	      echo "Must specify a package set (diablo-final, etc) with --version"
+	      exit 1
+	  fi
+	  noseargs="$noseargs --package-set=$2"
+	  shift
+	  ;;
     *) noseargs="$noseargs $1"
   esac
+
   shift
 done
 
