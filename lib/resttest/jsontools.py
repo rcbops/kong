@@ -16,6 +16,47 @@ def nested_get(key, data):
             r = r[i]
     return r
 
+def safe_nested_get(key,data):
+    try:
+        return nested_get(key,data)
+    except:
+        return None
+
+def nested_search(key,data, acc=None):
+    indexes = key.strip("/").split("/")
+    
+    head, rest = indexes[0], "/".join(indexes[1:])
+
+    if acc == None:
+        # first run
+        acc = [data]
+    
+    if head == '':
+        return acc
+    elif head == '*':
+        #special case 1 search,
+        collect = []
+        for i in acc:
+            if type(i) == list:
+                for j in i:
+                    collect.append(j)
+        acc = collect
+    elif head.find("=") >= 0:
+        #special case 2: SEARCH
+        collect = []
+        k,v = head.split("=",1)
+        for i in acc:
+            value = safe_nested_get(k, i)
+            if v == value:
+                collect.append(i)
+        acc = collect
+    else:
+        #we need to iterate through acc and remove items that no longer match
+        acc = [ safe_nested_get(head,d) for d in acc if safe_nested_get(head, d) != None]
+    return nested_search(rest,data, acc)
+
+    
+
 class with_keys_op(object):
     def __init__(self, d, op=lambda x,y: x == y, 
                  error="json value at key not equal to provide value"):
