@@ -9,7 +9,9 @@ class textp(object):
             self.error='text %s not found in returned data' % (self.text)
             return False
         return True
-
+    def __eq__(self, o):
+        return type(self) == type(o) and self.code == o.code
+    
 class codep(object):
     error = "test failed"
     def __init__(self,code):
@@ -19,7 +21,9 @@ class codep(object):
             self.error = 'Return code of "%s" is not "%s"' % (response['status'], self.code)
             return False
         return True
-
+    def __eq__(self, o):
+        return type(self) == type(o) and self.code == o.code
+    
 class wrap_headers(object):
     def __init__(self, headers):
         self.headers = headers
@@ -27,3 +31,5 @@ class wrap_headers(object):
         nheaders = copy(headers)
         nheaders.update(self.headers)
         return uri, method, nheaders, body, redirections, connection_type
+    def __eq__(self, o):
+        return type(self) == type(o) and self.headers == o.headers
