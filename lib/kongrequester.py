@@ -4,17 +4,18 @@ from resttest.httptools import wrap_headers
 
 class KongRequester(JSONRequester):
     def __init__(self,service,target="publicURL", predicates=[],
-                 response_transformers=[], request_transformers=[]):
+                 response_transformers=[], request_transformers=[],
+                 config_file="../etc/config.ini"):
         super(KongRequester,self).__init__(predicates,
                                             response_transformers,
                                             request_transformers)
+        self.config_file = config_file
         self.service=service
         self.target = target
         c = JSONRequester()
-        (url, user, password, tenant) = self.get_config()
-        body = {"auth": {"passwordCredentials": {"username": user,
-                                                 "password": password},
-                         "tenantId": tenant}}    
+        (url, user, password, tenantid, region) = self.get_config()
+        body = {"auth":{"passwordCredentials":{"username": user,
+                "password": password},"tenantId": tenantid}}    
         try:
             response, data = c.POST(url, body=body, code=200)
         except AssertionError:
@@ -26,8 +27,8 @@ class KongRequester(JSONRequester):
             (service, target), data)[0]
         self.token = nested_get("/access/token/id",data)
         if self.endpoint == []:
-            raise ValueError('No endpoint found for service %s in RegionOne' \
-                             + 'with target %s' % (service,target))
+            raise ValueError('No endpoint found for service %s in region %s' \
+                             + 'with target %s' % (service,target, region))
         if not print_it in self.request_transformers:
             self.request_transformers.insert(0,print_it)
         base = base_url(self.endpoint)
@@ -40,7 +41,14 @@ class KongRequester(JSONRequester):
             self.response_transformers.insert(0,print_it)
     def get_config(self):
         #url, user, password, tenant
-        return "http://demo.rcb.me:5000/v2.0/tokens", "admin", "secrete", 1
+        from ConfigParser import ConfigParser
+        p = ConfigParser()
+        s = "KongRequester"
+        p.read(self.config_file)
+        url = p.get(s, "auth_url").rstrip("/") + "/v2.0/tokens"
+        return url, p.get(s,"user"), p.get(s,"password"), \
+            p.get(s, "tenantid"), p.get(s, "region")
+        #"http://demo.rcb.me:5000/v2.0/tokens", "admin", "secrete", 1, RegionOne
 
 class base_url(object):
     def __init__(self,uri):
