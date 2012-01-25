@@ -69,7 +69,7 @@ class Requester(object):
         self.response_transformers = response_transformers
         self.request_transformers = request_transformers
         for method in  ["GET", "PUT", "DELETE", "POST", "HEAD"]:
-            for cm in self.__class__.__dict__.keys():
+            for cm in self.__dict__.keys():
                 if cm.find("_http") == 0:
                     new_method = cm.replace("_http", method,1)
                     if not self.__dict__.has_key(new_method):
@@ -77,7 +77,7 @@ class Requester(object):
                             self.__class__._dispatch,
                             self,
                             method=method,
-                            desc=self.__class__.__dict__[cm])
+                            desc=self.__dict__[cm])
 
     def request(self, uri, method="GET", headers={},body=None,
                 redirections=DEFAULT_MAX_REDIRECTS, connection_type=None,
