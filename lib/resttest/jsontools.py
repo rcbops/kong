@@ -66,7 +66,7 @@ def nested_match(key, data):
 class with_keys_op(object):
     def __init__(self, d, op=lambda x, y: x == y,
                  error="json value at key not equal to provide value"):
-        self.d = d\
+        self.d = d
         self.error = error
         self.op = op
 
