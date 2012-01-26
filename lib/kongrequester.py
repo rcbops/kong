@@ -22,13 +22,18 @@ class KongRequester(JSONRequester):
                 response, data = c.POST(url, body=body['auth'],code=200)
                 data['access'] = data['auth']
         self.services = nested_get("/access/serviceCatalog", data)
-        self.endpoint = nested_search(
-            "/access/serviceCatalog/*/type=%s/endpoints/*/region=RegionOne/%s" %
-            (service, target), data)[0]
+        try:
+            self.endpoint = nested_search(
+                "/access/serviceCatalog/*/type=%s/endpoints/*/region=%s/%s" %
+                (service, region, target), data)[0]
+        except IndexError:
+            self.endpoint =[]
+        finally:
+            if self.endpoint == []:
+                raise ValueError(('No endpoint found for service "%s" in'
+                                 + ' region "%s" with target "%s"') %
+                                 (service,region,target))
         self.token = nested_get("/access/token/id",data)
-        if self.endpoint == []:
-            raise ValueError('No endpoint found for service %s in region %s' \
-                             + 'with target %s' % (service,target, region))
         if not print_it in self.request_transformers:
             self.request_transformers = [print_it] + self.request_transformers
         base = base_url(self.endpoint)
