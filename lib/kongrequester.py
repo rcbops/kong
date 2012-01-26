@@ -30,15 +30,15 @@ class KongRequester(JSONRequester):
             raise ValueError('No endpoint found for service %s in region %s' \
                              + 'with target %s' % (service,target, region))
         if not print_it in self.request_transformers:
-            self.request_transformers.insert(0,print_it)
+            self.request_transformers = [print_it] + self.request_transformers
         base = base_url(self.endpoint)
         if not base in self.request_transformers:
-            self.request_transformers.append(base)
+            self.request_transformers += [base]
         auth = wrap_headers({"X-Auth-Token": self.token})
         if not auth in self.request_transformers:
-            self.request_transformers.append(auth)
+            self.request_transformers += [auth]
         if not print_it in self.response_transformers:
-            self.response_transformers.insert(0,print_it)
+            self.response_transformers = self.response_transformers + [print_it]
     def get_config(self):
         #url, user, password, tenant
         from ConfigParser import ConfigParser
