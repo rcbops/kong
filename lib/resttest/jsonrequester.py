@@ -4,7 +4,7 @@ from jsontools import with_keys_eq, with_keys_ne, json_request, json_response
 
 
 class JSONRequester(Requester):
-    def __init__(self,predicates=[],response_transformers=[],
+    def __init__(self, predicates=[], response_transformers=[],
                  request_transformers=[]):
         self._http_with_keys_eq = {"args": {"d": 1},
                                    "predicates": [(codep, ["code"]),
