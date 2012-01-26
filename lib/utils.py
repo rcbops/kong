@@ -3,7 +3,7 @@
 from resttest.jsonrequester import JSONRequester
 from kongrequester import print_it
 from kongrequester import KongRequester
-r= JSONRequester(request_transformers=[print_it],
+r = JSONRequester(request_transformers=[print_it],
                  response_transformers=[print_it])
 SERVICES = {}
 for service in (("image", "glance"), ("compute", "nova"),
