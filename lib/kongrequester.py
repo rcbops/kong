@@ -12,38 +12,13 @@ class KongRequester(JSONRequester):
         self.config_file = config_file
         self.service=service
         self.target = target
-        c = JSONRequester()
-        (url, user, password, tenantid, region) = self.get_config()
-        body = {"auth":{"passwordCredentials":{"username": user,
-                "password": password},"tenantId": tenantid}}    
-        try:
-            response, data = c.POST(url, body=body, code=200)
-        except AssertionError:
-                response, data = c.POST(url, body=body['auth'],code=200)
-                data['access'] = data['auth']
-        self.services = nested_get("/access/serviceCatalog", data)
-        try:
-            self.endpoint = nested_search(
-                "/access/serviceCatalog/*/type=%s/endpoints/*/region=%s/%s" %
-                (service, region, target), data)[0]
-        except IndexError:
-            self.endpoint =[]
-        finally:
-            if self.endpoint == []:
-                raise ValueError(('No endpoint found for service "%s" in'
-                                 + ' region "%s" with target "%s"') %
-                                 (service,region,target))
-        self.token = nested_get("/access/token/id",data)
-        if not print_it in self.request_transformers:
-            self.request_transformers = [print_it] + self.request_transformers
-        base = base_url(self.endpoint)
-        if not base in self.request_transformers:
-            self.request_transformers += [base]
-        auth = wrap_headers({"X-Auth-Token": self.token})
-        if not auth in self.request_transformers:
-            self.request_transformers += [auth]
-        if not print_it in self.response_transformers:
-            self.response_transformers = self.response_transformers + [print_it]
+        self.endpoint, self.token, self.services, self.data = \
+            self.__init_keystone__(service, target)
+        self.request_transformers = [print_it] + self.request_transformers
+        self.request_transformers += [base_url(self.endpoint)]
+        self.request_transformers += [wrap_headers({"X-Auth-Token": self.token})]
+        self.response_transformers = self.response_transformers + [print_it]
+
     def get_config(self):
         #url, user, password, tenant
         from ConfigParser import ConfigParser
@@ -55,6 +30,30 @@ class KongRequester(JSONRequester):
             p.get(s, "tenantid"), p.get(s, "region")
         #"http://demo.rcb.me:5000/v2.0/tokens", "admin", "secrete", 1, RegionOne
 
+    def __init_keystone__(self,service, target):
+        (url, user, password, tenantid, region) = self.get_config()
+        body = {"auth":{"passwordCredentials":{"username": user,
+                "password": password},"tenantId": tenantid}}    
+        try:
+            response, data = self.POST(url, body=body, code=200)
+        except AssertionError:
+            response, data = self.POST(url, body=body['auth'],code=200)
+            data['access'] = data['auth']
+        services = nested_get("/access/serviceCatalog", data)
+        try:
+            endpoint = nested_search(
+                "/access/serviceCatalog/*/type=%s/endpoints/*/region=%s/%s" %
+                (service, region, target), data)[0]
+        except IndexError:
+            endpoint =[]
+        finally:
+            if endpoint == []:
+                raise ValueError(('No endpoint found for service "%s" in'
+                                 + ' region "%s" with target "%s"') %
+                                 (service,region,target))
+        token = nested_get("/access/token/id",data)
+        return endpoint, token, services, data
+            
 class base_url(object):
     def __init__(self,uri):
         self.uri = uri
