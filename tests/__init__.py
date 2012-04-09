@@ -124,7 +124,8 @@ class FunctionalTest(unittest2.TestCase):
                 self.keystone['subversion'] = 'diablo-final'
                 body = {"auth": {"passwordCredentials": {
                             "username": self.keystone['user'],
-                            "password": self.keystone['pass']}}}
+                            "password": self.keystone['pass']},
+                            "tenantId": self.keystone['tenantid']}}
                 post_path = urlparse.urljoin(path, "tokens")
                 post_data = json.dumps(body)
                 headers = {'Content-Type': 'application/json'}
