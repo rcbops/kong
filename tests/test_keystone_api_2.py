@@ -29,28 +29,29 @@ import os
 import tests
 import subprocess
 from pprint import pprint
-from utils import r
+from utils import SERVICES
+r = SERVICES['keystone']
 
 
 class TestKeystoneAPI2(tests.FunctionalTest):
     tags = ['nova', 'nova-api', 'keystone']
 
     def test_keystone_d5_failed_auth(self):
-        r.POST(self.keystone['endpoint'] + '/tokens',
+        r.POST('/tokens',
                body={ "passwordCredentials":
                       { "username": "bad",
                         "password": "bad" }},
                code = 400)
 
     def test_keystone_v2_failed_auth(self):
-        r.POST(self.keystone['endpoint'] + '/tokens',
+        r.POST('/tokens',
                     body={ "auth": { "passwordCredentials":
                                      { "username": "bad",
                                        "password": "bad" }}},
                     code = 401)
 
     def test_keystone_d5_successful_auth(self):
-        r.POST_with_keys_eq(self.keystone['endpoint'] + '/tokens',
+        r.POST_with_keys_eq('/tokens',
                             { "auth/token/id": self.nova['X-Auth-Token'] },
                             body={ "passwordCredentials":
                                    { "username": self.keystone['user'],
@@ -58,35 +59,36 @@ class TestKeystoneAPI2(tests.FunctionalTest):
                             code = 200)
 
     def test_keystone_v2_successful_auth(self):
-        r.POST_with_keys_eq(self.keystone['endpoint'] + '/tokens',
+        r.POST_with_keys_eq('/tokens',
                             { "access/token/id": self.nova['X-Auth-Token'] },
                body={ "auth": { "passwordCredentials":
                                 { "username": self.keystone['user'],
-                                  "password": self.keystone['pass'] }}},
+                                  "password": self.keystone['pass'] },
+                                  "tenantId": self.keystone['tenantid']}},
                code = 200)
 
     def test_keystone_d5_bad_key(self):
-        r.POST(self.keystone['endpoint'] + '/tokens',
+        r.POST('/tokens',
                body={ "passwordCredentials":
                       { "username": self.keystone['user'],
                         "password": "badpass" }},
                code = 401)
 
     def test_keystone_v2_bad_key(self):
-        r.POST(self.keystone['endpoint'] + '/tokens',
+        r.POST('/tokens',
                body={ "auth": { "passwordCredentials":
                                 { "username": self.keystone['user'],
                                   "password": "badpass" }}},
                code = 401)
 
     def test_keystone_d5_no_key(self):
-        r.POST(self.keystone['endpoint'] + '/tokens',
+        r.POST('/tokens',
                body={ "passwordCredentials":
                       { "username": self.keystone['user']}},
                code = 400)
 
     def test_keystone_v2_no_key(self):
-        r.POST(self.keystone['endpoint'] + '/tokens',
+        r.POST('/tokens',
                body={ "auth": { "passwordCredentials":
                                 { "username": self.keystone['user']}}},
                code = 400)
