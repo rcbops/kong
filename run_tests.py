@@ -8,9 +8,14 @@ import unittest
 import sys
 import time
 
+sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
+
 from nose import config
 from nose import result
 from nose import core
+from nose import main
+
+from kongplugins import skipper
 
 
 class _AnsiColorizer(object):
@@ -288,13 +293,17 @@ if __name__ == '__main__':
         else:
             argv.append(x)
 
+    p = core.DefaultPluginManager()
+    p.addPlugin(skipper.Skipper())
+
     c = config.Config(stream=sys.stdout,
                       env=os.environ,
                       verbosity=3,
-                      plugins=core.DefaultPluginManager())
+                      plugins=p)
 
     runner = KongTestRunner(stream=c.stream,
                             verbosity=c.verbosity,
                             config=c,
                             show_elapsed=show_elapsed)
+
     sys.exit(not core.run(config=c, testRunner=runner, argv=argv))

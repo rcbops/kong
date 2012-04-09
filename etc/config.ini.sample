@@ -29,3 +29,10 @@ user = admin
 password = password
 tenantid = tenant
 region = RegionOne
+
+[KongRequester]
+auth_url = http://keystone.somedomain.com:keystone_port
+user = keystone_user
+password = password
+tenantid = tenantid
+region = RegionOne
