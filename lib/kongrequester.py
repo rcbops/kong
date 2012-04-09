@@ -6,7 +6,7 @@ from resttest.httptools import wrap_headers
 class KongRequester(JSONRequester):
     def __init__(self, service, target="publicURL", predicates=[],
                  response_transformers=[], request_transformers=[],
-                 config_file="../etc/config.ini"):
+                 config_file="etc/config.ini"):
         super(KongRequester, self).__init__(predicates,
                                             response_transformers,
                                             request_transformers)
