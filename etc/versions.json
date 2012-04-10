@@ -67,5 +67,11 @@
     },
     "test_001_connect_to_glance_api": {
         "max": "diablo-final"
+    },
+    "test_210_list_addresses": {
+        "max": "diablo-final"
+    },
+    "test_210_list_addresses_essex": {
+        "min": "essex"
     }
 }

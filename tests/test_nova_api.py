@@ -29,7 +29,9 @@ import os
 import tests
 import subprocess
 from pprint import pprint
-
+from resttest.jsontools import nested_search
+from utils import SERVICES
+nova = SERVICES['nova']
 
 class TestNovaAPI(tests.FunctionalTest):
     def ping_host(self, address, interval, max_wait):
@@ -425,6 +427,14 @@ class TestNovaAPI(tests.FunctionalTest):
         self.assertEqual(address_match, True)
     test_210_list_addresses.tags = ['nova']
 
+    def test_210_list_addresses_essex(self):
+        label = self.config['nova']['network_label']
+        addrs = nova.GET('/servers/%s/ips' % (self.nova['single_server_id']),
+                         code=200)[1]
+        self.assertEqual(len(nested_search('/addresses/%s/*/addr=%s' % (
+            label, self.nova['address']), addrs)) > 0, True)
+    test_210_list_addresses_essex.tags = ['nova']
+    
     @tests.skip_test("Skipping multi-instance tests")
     def test_300_create_to_postpm_limit(self):
         self.nova['multi_server'] = {}
