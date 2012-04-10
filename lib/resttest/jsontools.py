@@ -12,7 +12,7 @@ def nested_get(key, data):
         i, indexes = indexes[0], indexes[1:]
         try:
             r = r["%s" % i]
-        except (TypeError, ValueError):
+        except (TypeError, ValueError,KeyError):
             i = int(i)
             r = r[i]
     return r

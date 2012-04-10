@@ -10,5 +10,68 @@
     },
     "test_999_delete_tenant": {
 	"min": "diablo-final"
+    },
+    "test_keystone_d5_failed_auth": {
+        "max": "diablo-d5"
+    },
+    "test_keystone_d5_bad_key": {
+        "max": "diablo-final"
+    },
+    "test_keystone_d5_successful_auth": {
+        "max": "diablo-final"
+    },
+    "test_keystone_d5_no_key": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_no_key": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_no_key_essex": {
+        "min": "essex"
+    },
+    "test_007_get_tenant_list": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_get_tenant_list_essex": {
+        "min": "essex"
+    },
+    "test_010_check_token": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_check_token": {
+        "min": "essex"
+    },
+    "test_020_create_tenant": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_create_tenant": {
+        "min": "essex"
+    },
+    "test_keystone_v2_delete_tenant": {
+        "min": "essex"
+    },
+    "test_021_create_tenant_user": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_create_tenant_user": {
+        "min": "essex"
+    },
+    "test_998_delete_user": {
+        "max": "diablo-final"
+    },
+    "test_999_delete_tenant": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_delete_user": {
+        "min": "essex"
+    },
+    "test_001_connect_to_glance_api": {
+        "max": "diablo-final"
+    },
+    "test_210_list_addresses": {
+        "max": "diablo-final"
+    },
+    "test_210_list_addresses_essex": {
+        "min": "essex"
     }
 }

@@ -171,7 +171,7 @@ class TestKeystoneAPI(tests.FunctionalTest):
                               'X-Auth-Token': self.nova['X-Auth-Token']})
         self.assertEqual(response.status, 200)
         json_return = json.loads(content)
-        self.assertEqual(json_return['extensions']['values'], [])
+        self.assertEqual(type(json_return['extensions']['values']), type([]))
     test_008_get_extension_list.tags = ['nova', 'nova-api', 'keystone']
 
     def test_009_validate_token(self):

@@ -30,7 +30,10 @@ import tests
 import subprocess
 from pprint import pprint
 from utils import SERVICES
+from resttest.jsontools import nested_search
+
 r = SERVICES['keystone']
+admin = SERVICES['keystone-admin']
 
 
 class TestKeystoneAPI2(tests.FunctionalTest):
@@ -38,58 +41,96 @@ class TestKeystoneAPI2(tests.FunctionalTest):
 
     def test_keystone_d5_failed_auth(self):
         r.POST('/tokens',
-               body={ "passwordCredentials":
-                      { "username": "bad",
-                        "password": "bad" }},
-               code = 400)
+               body={"passwordCredentials":
+                      {"username": "bad",
+                       "password": "bad"}},
+               code=400)
 
     def test_keystone_v2_failed_auth(self):
         r.POST('/tokens',
-                    body={ "auth": { "passwordCredentials":
-                                     { "username": "bad",
-                                       "password": "bad" }}},
-                    code = 401)
+                    body={"auth": {"passwordCredentials":
+                                   {"username": "bad",
+                                    "password": "bad"}}},
+                                    code=401)
 
     def test_keystone_d5_successful_auth(self):
         r.POST_with_keys_eq('/tokens',
-                            { "auth/token/id": self.nova['X-Auth-Token'] },
-                            body={ "passwordCredentials":
-                                   { "username": self.keystone['user'],
-                                     "password": self.keystone['pass'] }},
-                            code = 200)
+                            {"auth/token/id": self.nova['X-Auth-Token']},
+                            body={"passwordCredentials":
+                                   {"username": self.keystone['user'],
+                                     "password": self.keystone['pass']}},
+                            code=200)
 
     def test_keystone_v2_successful_auth(self):
-        r.POST_with_keys_eq('/tokens',
-                            { "access/token/id": self.nova['X-Auth-Token'] },
-               body={ "auth": { "passwordCredentials":
-                                { "username": self.keystone['user'],
-                                  "password": self.keystone['pass'] },
-                                  "tenantId": self.keystone['tenantid']}},
-               code = 200)
+        r.POST('/tokens',
+               body={"auth": {"passwordCredentials":
+                              {"username": self.keystone['user'],
+                               "password": self.keystone['pass']},
+                                 "tenantId": self.keystone['tenantid']}},
+               code=200)
 
     def test_keystone_d5_bad_key(self):
         r.POST('/tokens',
-               body={ "passwordCredentials":
-                      { "username": self.keystone['user'],
-                        "password": "badpass" }},
-               code = 401)
+               body={"passwordCredentials":
+                      {"username": self.keystone['user'],
+                       "password": "badpass"}},
+               code=401)
 
     def test_keystone_v2_bad_key(self):
         r.POST('/tokens',
-               body={ "auth": { "passwordCredentials":
-                                { "username": self.keystone['user'],
-                                  "password": "badpass" }}},
-               code = 401)
+               body={"auth": {"passwordCredentials":
+                              {"username": self.keystone['user'],
+                               "password": "badpass"}}},
+               code=401)
 
     def test_keystone_d5_no_key(self):
         r.POST('/tokens',
-               body={ "passwordCredentials":
-                      { "username": self.keystone['user']}},
-               code = 400)
+               body={"passwordCredentials":
+                      {"username": self.keystone['user']}},
+               code=400)
 
     def test_keystone_v2_no_key(self):
         r.POST('/tokens',
-               body={ "auth": { "passwordCredentials":
-                                { "username": self.keystone['user']}}},
-               code = 400)
+               body={"auth": {"passwordCredentials":
+                              {"username": self.keystone['user']}}},
+               code=400)
 
+    def test_keystone_v2_no_key_essex(self):
+        r.POST('/tokens',
+               body={"auth": {"passwordCredentials":
+                              {"username": self.keystone['user']}}},
+               code=401)
+
+    def test_keystone_v2_get_tenant_list_essex(self):
+        response, d = r.GET("/tenants")
+        self.assertEqual(len(nested_search("/tenants/*/id=%s" %
+                                       (self.keystone['tenantid']),
+                                       d)), 1)
+
+    def test_keystone_v2_check_token(self):
+        admin.HEAD("/tokens/%s" % r.token, code=204)
+
+    def test_keystone_v2_create_tenant(self):
+        admin.POST('/tenants', body={"tenant": {
+                                "name": "kongtenant",
+                                "description": "description"}}, code=200)
+
+    def test_keystone_v2_create_tenant_user(self):
+        response, data = admin.GET("/tenants")
+        kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]
+        user = {"user": {
+                             "name": "kongadmin",
+                             "password": "kongsecrete",
+                             "tenantid": kong_tenant,
+                             "email": ""}}
+        admin.POST("/users", body=user, code=200)
+
+    def test_keystone_v2_delete_tenant(self):
+        response, data = admin.GET("/tenants")
+        kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]
+        admin.DELETE("/tenants/%s" % kong_tenant, code=204)
+
+    def test_keystone_v2_delete_user(self):
+        response, data = admin.GET("/users")
+        kong_user = nested_search("/users/*/name=kongadmin/id", data)[0]
+        admin.DELETE("/users/%s" % kong_user, code=204)
