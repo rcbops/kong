@@ -34,5 +34,11 @@
     },
     "test_keystone_v2_get_tenant_list_essex": {
         "min": "essex"
+    },
+    "test_010_check_token": {
+        "max": "diablo-final"
+    },
+    "test_keyston_v2_check_token": {
+        "min": "essex"
     }
 }

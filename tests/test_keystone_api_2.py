@@ -33,7 +33,7 @@ from utils import SERVICES
 from resttest.jsontools import nested_search
 
 r = SERVICES['keystone']
-
+admin = SERVICES['keystone-admin']
 
 class TestKeystoneAPI2(tests.FunctionalTest):
     tags = ['nova', 'nova-api', 'keystone']
@@ -107,3 +107,5 @@ class TestKeystoneAPI2(tests.FunctionalTest):
                                        (self.keystone['tenantid']),
                                        d)), 1)
                                        
+    def test_keystone_v2_check_token(self):
+        admin.HEAD("/tokens/%s" % r.token, code=204)
