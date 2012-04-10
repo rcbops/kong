@@ -12,7 +12,7 @@
 	"min": "diablo-final"
     },
     "test_keystone_d5_failed_auth": {
-        "max": "diablo-final"
+        "max": "diablo-d5"
     },
     "test_keystone_d5_bad_key": {
         "max": "diablo-final"
