@@ -38,7 +38,31 @@
     "test_010_check_token": {
         "max": "diablo-final"
     },
-    "test_keyston_v2_check_token": {
+    "test_keystone_v2_check_token": {
+        "min": "essex"
+    },
+    "test_020_create_tenant": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_create_tenant": {
+        "min": "essex"
+    },
+    "test_keystone_v2_delete_tenant": {
+        "min": "essex"
+    },
+    "test_021_create_tenant_user": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_create_tenant_user": {
+        "min": "essex"
+    },
+    "test_998_delete_user": {
+        "max": "diablo-final"
+    },
+    "test_999_delete_tenant": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_delete_user": {
         "min": "essex"
     }
 }
