@@ -30,6 +30,8 @@ import tests
 import subprocess
 from pprint import pprint
 from utils import SERVICES
+from resttest.jsontools import nested_search
+
 r = SERVICES['keystone']
 
 
@@ -99,3 +101,9 @@ class TestKeystoneAPI2(tests.FunctionalTest):
                                 { "username": self.keystone['user']}}},
                code = 401)
 
+    def test_keystone_v2_get_tenant_list_essex(self):
+        response, d = r.GET("/tenants")
+        self.assertEqual(len(nested_search("/tenants/*/id=%s" %
+                                       (self.keystone['tenantid']),
+                                       d)), 1)
+                                       

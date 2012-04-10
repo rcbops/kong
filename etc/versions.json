@@ -28,5 +28,11 @@
     },
     "test_keystone_v2_no_key_essex": {
         "min": "essex"
+    },
+    "test_007_get_tenant_list": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_get_tenant_list_essex": {
+        "min": "essex"
     }
 }
