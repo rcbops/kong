@@ -356,7 +356,6 @@ class TestNovaAPI(tests.FunctionalTest):
                                          body=data)
         json_return = json.loads(content)
         self.assertEqual(response.status, 202)
-        self.assertEqual(json_return['server']['status'], "BUILD")
         self.nova['single_server_id'] = json_return['server']['id']
         time.sleep(5)
         build_result = self.build_check(self.nova['single_server_id'])
