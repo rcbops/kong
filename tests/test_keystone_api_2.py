@@ -93,3 +93,9 @@ class TestKeystoneAPI2(tests.FunctionalTest):
                                 { "username": self.keystone['user']}}},
                code = 400)
 
+    def test_keystone_v2_no_key_essex(self):
+        r.POST('/tokens',
+               body={ "auth": { "passwordCredentials":
+                                { "username": self.keystone['user']}}},
+               code = 401)
+
