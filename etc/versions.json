@@ -10,5 +10,23 @@
     },
     "test_999_delete_tenant": {
 	"min": "diablo-final"
+    },
+    "test_keystone_d5_failed_auth": {
+        "max": "diablo-final"
+    },
+    "test_keystone_d5_bad_key": {
+        "max": "diablo-final"
+    },
+    "test_keystone_d5_successful_auth": {
+        "max": "diablo-final"
+    },
+    "test_keystone_d5_no_key": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_no_key": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_no_key_essex": {
+        "min": "essex"
     }
 }
