@@ -93,7 +93,7 @@ def install_dependencies(venv=VENV):
     # Install greenlet by hand - just listing it in the requires file does not
     # get it in stalled in the right order
     venv_tool = 'tools/with_venv.sh'
-    run_command([venv_tool, 'pip', 'install', '-E', venv, '-r', PIP_REQUIRES],
+    run_command([venv_tool, 'pip', 'install', '-r', PIP_REQUIRES],
                 redirect_output=False)
 
     # Tell the virtual env how to "import glance"
