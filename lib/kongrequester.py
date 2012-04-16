@@ -29,12 +29,12 @@ class KongRequester(JSONRequester):
         p.read(self.config_file)
         url = p.get(s, "auth_url").rstrip("/") + "/v2.0/tokens"
         return url, p.get(s, "user"), p.get(s, "password"), \
-            p.get(s, "tenantid"), p.get(s, "region")
+            p.get(s, "tenantname"), p.get(s, "region")
 
     def __init_keystone__(self, service, target):
-        (url, user, password, tenantid, region) = self.get_config()
+        (url, user, password, tenantname, region) = self.get_config()
         body = {"auth": {"passwordCredentials": {"username": user,
-                "password": password}, "tenantId": tenantid}}
+                "password": password}, "tenantName": tenantname}}
         try:
             response, data = self.POST(url, body=body, code=200)
         except AssertionError:

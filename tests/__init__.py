@@ -125,7 +125,7 @@ class FunctionalTest(unittest2.TestCase):
                 body = {"auth": {"passwordCredentials": {
                             "username": self.keystone['user'],
                             "password": self.keystone['pass']},
-                            "tenantId": self.keystone['tenantid']}}
+                            "tenantName": self.keystone['tenantname']}}
                 post_path = urlparse.urljoin(path, "tokens")
                 post_data = json.dumps(body)
                 headers = {'Content-Type': 'application/json'}
@@ -138,7 +138,7 @@ class FunctionalTest(unittest2.TestCase):
                     body = {"passwordCredentials": {
                                   "username": self.keystone['user'],
                                   "password": self.keystone['pass']},
-                           "tenantid": self.keystone['tenantid']}
+                           "tenantid": self.keystone['tenantname']}
                     post_path = urlparse.urljoin(path, "tokens")
                     post_data = json.dumps(body)
                     response, content = http.request(post_path, 'POST',
@@ -152,6 +152,7 @@ class FunctionalTest(unittest2.TestCase):
 
                     self.keystone['catalog'] =\
                         decode[meaningless_cruft]['serviceCatalog']
+                    self.keystone['tenantid'] = decode[meaningless_cruft]['token']['tenant']['id']
 
                     # print json.dumps(self.keystone['catalog'], indent=2)
                     return decode[meaningless_cruft]['token']['id']
@@ -234,7 +235,7 @@ class FunctionalTest(unittest2.TestCase):
             ret_hash['apiver'] = self.config['keystone']['apiver']
             ret_hash['user'] = self.config['keystone']['user']
             ret_hash['pass'] = self.config['keystone']['password']
-            ret_hash['tenantid'] = self.config['keystone']['tenantid']
+            ret_hash['tenantname'] = self.config['keystone']['tenantname']
             ret_hash['region'] = self.config['keystone']['region']
             return ret_hash
 

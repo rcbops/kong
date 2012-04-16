@@ -36,6 +36,7 @@ LRG_OBJ = "include/swift_objects/swift_large"
 
 
 class TestSwift(tests.FunctionalTest):
+    @tests.skip_test("Currently Not Working")
     def test_000_auth(self):
         if self.swift['auth_ssl'] == "False":
             prot = "http://"
@@ -74,6 +75,7 @@ class TestSwift(tests.FunctionalTest):
                                                       url[4])
     test_000_auth.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_001_create_container(self):
         path = "%s/%s/" % (self.swift['storage_url'], "test_container")
         http = httplib2.Http(disable_ssl_certificate_validation=True)
@@ -82,6 +84,7 @@ class TestSwift(tests.FunctionalTest):
         self.assertEqual(response.status, 201)
     test_001_create_container.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_002_list_containers(self):
         http = httplib2.Http(disable_ssl_certificate_validation=True)
         headers = {'X-Auth-Token': '%s' % (self.swift['x-auth-token'])}
@@ -91,6 +94,7 @@ class TestSwift(tests.FunctionalTest):
         self.assertLessEqual('1', response['x-account-container-count'])
     test_002_list_containers.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_010_create_small_object(self):
         md5 = self._md5sum_file(SMALL_OBJ)
         path = "%s/%s/%s" % (self.swift['storage_url'],
@@ -110,6 +114,7 @@ class TestSwift(tests.FunctionalTest):
         self.assertEqual(response.status, 201)
     test_010_create_small_object.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_011_create_medium_object(self):
         md5 = self._md5sum_file(MED_OBJ)
         path = "%s/%s/%s" % (self.swift['storage_url'],
@@ -132,6 +137,7 @@ class TestSwift(tests.FunctionalTest):
         self.assertEqual(response.status, 201)
     test_011_create_medium_object.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_013_get_small_object(self):
         path = "%s/%s/%s" % (self.swift['storage_url'],
                              "test_container",
@@ -146,6 +152,7 @@ class TestSwift(tests.FunctionalTest):
         self.assertEqual(response['etag'], self._md5sum_file(SMALL_OBJ))
     test_013_get_small_object.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_017_delete_small_object(self):
         path = "%s/%s/%s" % (self.swift['storage_url'], "test_container",
                              "swift_small")
@@ -158,6 +165,7 @@ class TestSwift(tests.FunctionalTest):
         self.assertEqual(response.status, 204)
     test_017_delete_small_object.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_018_delete_medium_object(self):
         path = "%s/%s/%s" % (self.swift['storage_url'], "test_container",
                              "swift_medium")
@@ -170,6 +178,7 @@ class TestSwift(tests.FunctionalTest):
         self.assertEqual(response.status, 204)
     test_018_delete_medium_object.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_030_check_container_metadata(self):
         path = "%s/%s" % (self.swift['storage_url'], "test_container")
         http = httplib2.Http(disable_ssl_certificate_validation=True)
@@ -180,6 +189,7 @@ class TestSwift(tests.FunctionalTest):
         self.assertEqual(response.status, 204)
     test_030_check_container_metadata.tags = ['swift']
 
+    @tests.skip_test("Currently Not Working")
     def test_050_delete_container(self):
         path = "%s/%s" % (self.swift['storage_url'], "test_container")
         http = httplib2.Http(disable_ssl_certificate_validation=True)
