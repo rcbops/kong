@@ -339,6 +339,25 @@ class TestNovaAPI(tests.FunctionalTest):
         self.assertEqual(data['image']['status'], 'ACTIVE')
     test_106_verify_image_active_v1_1.tags = ['nova']
 
+    def test_150_create_security_group(self):
+        nova.POST("/os-security-groups",
+                  body={"security_group":
+                        {"name": "kongsec",
+                         "description": "for testing only"}},
+                         code=200)
+    test_150_create_security_group.tags = ['nova']
+
+    def test_151_create_security_group_rule(self):
+        gid = nested_search("/security_groups/*/name=kongsec/id",
+                            nova.GET("/os-security-groups")[1])[0]
+        nova.POST("/os-security-group-rules",
+                  body={"security_group_rule":
+                        {"from_port": "-1", "to_port": "-1",
+                         "parent_group_id": "%s" % gid,
+                         "cidr": "0.0.0.0/0", "ip_protocol": "icmp"}},
+                         code=200)
+    test_151_create_security_group_rule.tags = ['nova']
+    
     def test_200_create_server(self):
         path = self.nova['path'] + '/servers'
         http = httplib2.Http()
@@ -352,7 +371,8 @@ class TestNovaAPI(tests.FunctionalTest):
                 "name": "testing server creation",
                 "flavorRef": "%s/flavors/%s" % (self.nova['path'],
                                                 self.flavor['id']),
-                "imageRef": self.glance['image_id']}}
+                "imageRef": self.glance['image_id'],
+                "security_groups": [{"name": "kongsec"}]}}
         data = json.dumps(json_str)
         response, content = http.request(path, 'POST', headers=headers,
                                          body=data)
@@ -528,3 +548,21 @@ class TestNovaAPI(tests.FunctionalTest):
 
         self.assertEqual(200, response.status)
     test_999_delete_image_from_glance.tags = ['glance', 'nova']
+
+
+    def test_901_delete_security_group_rule(self):
+        data = nova.GET("/os-security-groups")[1]
+        gid = nested_search("/security_groups/*/name=kongsec/id",
+                            data)[0]
+        rids = nested_search("/security_groups/*/rules/*/parent_group_id=" +\
+                            str(gid) + "/id", data)
+        for rid in rids:
+            nova.DELETE("/os-security-group-rules/%s" % rid, code=202)
+    test_901_delete_security_group_rule.tags = ['nova']
+        
+    def test_902_delete_security_group(self):
+        gid = nested_search("/security_groups/*/name=kongsec/id",
+                            nova.GET("/os-security-groups")[1])[0]
+        nova.DELETE("/os-security-groups/%s" % gid, timeout=60, delay=5, code=202)
+    test_902_delete_security_group.tags = ['nova']
+
