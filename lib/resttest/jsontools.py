@@ -48,6 +48,11 @@ def nested_search(key, data, acc=None):
         k, v = head.split("=", 1)
         for i in acc:
             value = safe_nested_get(k, i)
+            if type(value) == int:
+                try:
+                    v = int(v)
+                except:
+                    pass
             if v == value:
                 collect.append(i)
         acc = collect
