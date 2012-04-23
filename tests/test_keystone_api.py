@@ -218,8 +218,8 @@ class TestKeystoneAPI(tests.FunctionalTest):
         post_data = json.dumps({"tenant": {
                          "name": "kongtenant",
                          "description": "description"}})
-        headers={'Content-Type': 'application/json',
-                 'X-Auth-Token': self.nova['X-Auth-Token']}
+        headers = {'Content-Type': 'application/json',
+                   'X-Auth-Token': self.nova['X-Auth-Token']}
         response, content = http.request(path,
                                     'POST',
                                     headers=headers,
@@ -240,8 +240,8 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                               self.keystone['admin_port'],
                                               self.keystone['apiver'])
             http = httplib2.Http()
-            headers={'Content-Type': 'application/json',
-                     'X-Auth-Token': self.nova['X-Auth-Token']}
+            headers = {'Content-Type': 'application/json',
+                       'X-Auth-Token': self.nova['X-Auth-Token']}
             post_data = json.dumps({"user": {
                              "name": "kongadmin",
                              "password": "kongsecrete",
@@ -265,8 +265,8 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                               self.keystone['apiver'],
                                               self.keystone['createdUserID'])
             http = httplib2.Http()
-            headers={'Content-Type': 'application/json',
-                     'X-Auth-Token': self.nova['X-Auth-Token']}
+            headers = {'Content-Type': 'application/json',
+                       'X-Auth-Token': self.nova['X-Auth-Token']}
             response, content = http.request(path,
                                         'DELETE',
                                         headers=headers)
@@ -278,12 +278,12 @@ class TestKeystoneAPI(tests.FunctionalTest):
             pass
         else:
             path = "http://%s:%s/%s/tenants/%s" % (self.keystone['host'],
-                                                self.keystone['admin_port'],
-                                                self.keystone['apiver'],
-                                                self.keystone['createdTenantID'])
+                                            self.keystone['admin_port'],
+                                            self.keystone['apiver'],
+                                            self.keystone['createdTenantID'])
             http = httplib2.Http()
-            headers={'Content-Type': 'application/json',
-                     'X-Auth-Token': self.nova['X-Auth-Token']}
+            headers = {'Content-Type': 'application/json',
+                       'X-Auth-Token': self.nova['X-Auth-Token']}
             response, content = http.request(path,
                                         'DELETE',
                                         headers=headers)
