@@ -82,9 +82,9 @@ class FunctionalTest(unittest2.TestCase):
         self.rabbitmq = {}
         try:
             self.__class__.tags
-            methods = [ self.__getattribute__(m) for m in self.__dict__.keys()
-                        if callable(self.getattribute(m)) and
-                        not m.find("_") == 0 ]
+            methods = [self.__getattribute__(m) for m in self.__dict__.keys()
+                       if callable(self.getattribute(m)) and
+                       not m.find("_") == 0]
             for m in methods:
                 try:
                     m.tags
@@ -93,6 +93,7 @@ class FunctionalTest(unittest2.TestCase):
         except AttributeError:
             pass
         #TODO: need to move this stuff out to util files
+
         def parse_config_file(self):
             cfg = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                    "..", "etc", "config.ini"))
