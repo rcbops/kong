@@ -33,6 +33,7 @@ from resttest.jsontools import nested_search
 from utils import SERVICES
 nova = SERVICES['nova']
 
+
 class TestNovaAPI(tests.FunctionalTest):
     def ping_host(self, address, interval, max_wait):
         """
@@ -357,7 +358,7 @@ class TestNovaAPI(tests.FunctionalTest):
                          "cidr": "0.0.0.0/0", "ip_protocol": "icmp"}},
                          code=200)
     test_151_create_security_group_rule.tags = ['nova']
-    
+
     def test_200_create_server(self):
         path = self.nova['path'] + '/servers'
         http = httplib2.Http()
@@ -454,7 +455,7 @@ class TestNovaAPI(tests.FunctionalTest):
         self.assertEqual(len(nested_search('/addresses/%s/*/addr=%s' % (
             label, self.nova['address']), addrs)) > 0, True)
     test_210_list_addresses_essex.tags = ['nova']
-    
+
     @tests.skip_test("Skipping multi-instance tests")
     def test_300_create_to_postpm_limit(self):
         self.nova['multi_server'] = {}
@@ -549,7 +550,6 @@ class TestNovaAPI(tests.FunctionalTest):
         self.assertEqual(200, response.status)
     test_999_delete_image_from_glance.tags = ['glance', 'nova']
 
-
     def test_901_delete_security_group_rule(self):
         data = nova.GET("/os-security-groups")[1]
         gid = nested_search("/security_groups/*/name=kongsec/id",
@@ -559,10 +559,10 @@ class TestNovaAPI(tests.FunctionalTest):
         for rid in rids:
             nova.DELETE("/os-security-group-rules/%s" % rid, code=202)
     test_901_delete_security_group_rule.tags = ['nova']
-        
+
     def test_902_delete_security_group(self):
         gid = nested_search("/security_groups/*/name=kongsec/id",
                             nova.GET("/os-security-groups")[1])[0]
-        nova.DELETE("/os-security-groups/%s" % gid, timeout=60, delay=5, code=202)
+        nova.DELETE("/os-security-groups/%s" % gid, timeout=60,
+                    delay=5, code=202)
     test_902_delete_security_group.tags = ['nova']
-
