@@ -180,6 +180,7 @@ class FunctionalTest(unittest2.TestCase):
                             if endpoint['region'] == region:
                                 return str(endpoint[path])
 
+
             raise Exception("You've been keystoned -- can't find endpoint for\
                                 %s/%s/%s" % (service, region, path))
 
@@ -239,8 +240,30 @@ class FunctionalTest(unittest2.TestCase):
             gen_path = _gen_glance_path(self)
 
         def setupSwift(self):
-            self.swift = {}
-            gen_path = _gen_swift_path(self)
+            ret_hash = {}
+            if 'auth_type' in self.config['swift'] and \
+                    self.config['swift']['auth_type'] == "swauth":
+                ret_hash['auth_type'] = "swauth"
+                ret_hash['auth_host'] = self.config['swift']['auth_host']
+                ret_hash['auth_port'] = self.config['swift']['auth_port']
+                ret_hash['auth_prefix'] = self.config['swift']['auth_prefix']
+                ret_hash['auth_ssl'] = self.config['swift']['auth_ssl']
+                ret_hash['account'] = self.config['swift']['account']
+                ret_hash['username'] = self.config['swift']['username']
+                ret_hash['password'] = self.config['swift']['password']
+                # need to find a better way to get this.
+                ret_hash['ver'] = 'v1.0'
+                return ret_hash
+            elif 'auth_type' in self.config['swift'] and \
+                self.config['swift']['auth_type'] == 'keystone':
+                ret_hash['auth_type'] = 'keystone'
+                ret_hash['storage_url'] = _endpoint_for(self,
+                                                        'swift',
+                                                       self.keystone['region'],
+                                                       'publicURL')
+                return ret_hash
+            raise Exception(
+                          'Cannot find region defined in configuration file.')
 
             # ret_hash = {}
             # ret_hash['auth_host'] = self.config['swift']['auth_host']
@@ -273,6 +296,7 @@ class FunctionalTest(unittest2.TestCase):
         if 'keystone' in self.config:
             self.keystone = setupKeystone(self)
             self.keystone['admin_path'] = _gen_keystone_admin_path(self)
+            _generate_auth_token(self)
             # self.nova = {}
             # self.nova['X-Auth-Token'] = _generate_auth_token(self)
             # gen_path = _gen_nova_path(self)
@@ -285,10 +309,12 @@ class FunctionalTest(unittest2.TestCase):
             "A valid keystone block must be provided in the configuration.")
         # TODO: add support for swift from keystone service catalog
         if 'swift' in self.config:
-            setupSwift(self)
-        elif 'nova' in self.config:
+            self.swift = {}
+            self.swift = setupSwift(self)
+        if 'nova' in self.config:
+            self.nova['X-Auth-Token'] = _generate_auth_token
             setupNova(self)
-        elif 'glance' in self.config:
+        if 'glance' in self.config:
             setupGlance(self)
         else:
             raise Exception(
