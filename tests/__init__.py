@@ -196,6 +196,19 @@ class FunctionalTest(unittest2.TestCase):
             raise Exception(
                 "Cannot find region defined in configuration file.")
 
+        def _gen_swift_path(self):
+            self.swift['path'] = _endpoint_for(self,
+                                               'swift',
+                                               self.keystone['region'],
+                                               'publicURL')
+            self.swift['adminPath'] = _endpoint_for(self,
+                                                    'swift',
+                                                    self.keystone['region'],
+                                                    'adminURL')
+            return True
+            raise Exception(
+                "Cannot find region defined in configuration file.")
+
         def _gen_glance_path(self):
             self.glance['path'] = _endpoint_for(self,
                                                 'glance',
@@ -214,18 +227,31 @@ class FunctionalTest(unittest2.TestCase):
                                         self.keystone['admin_port'],
                                         self.keystone['apiver'])
             return path
+        def setupNova(self):
+            self.nova = {}
+            self.nova['X-Auth-Token'] = _generate_auth_token(self)
+            _gen_nova_path(self)
+            self.limits = {}
+            self.flavor = {}
+
+        def setupGlance(self):
+            self.glance = {}
+            gen_path = _gen_glance_path(self)
 
         def setupSwift(self):
-            ret_hash = {}
-            ret_hash['auth_host'] = self.config['swift']['auth_host']
-            ret_hash['auth_port'] = self.config['swift']['auth_port']
-            ret_hash['auth_prefix'] = self.config['swift']['auth_prefix']
-            ret_hash['auth_ssl'] = self.config['swift']['auth_ssl']
-            ret_hash['account'] = self.config['swift']['account']
-            ret_hash['username'] = self.config['swift']['username']
-            ret_hash['password'] = self.config['swift']['password']
-            # need to find a better way to get this.
-            ret_hash['ver'] = 'v1.0'
+            self.swift = {}
+            gen_path = _gen_swift_path(self)
+
+            # ret_hash = {}
+            # ret_hash['auth_host'] = self.config['swift']['auth_host']
+            # ret_hash['auth_port'] = self.config['swift']['auth_port']
+            # ret_hash['auth_prefix'] = self.config['swift']['auth_prefix']
+            # ret_hash['auth_ssl'] = self.config['swift']['auth_ssl']
+            # ret_hash['account'] = self.config['swift']['account']
+            # ret_hash['username'] = self.config['swift']['username']
+            # ret_hash['password'] = self.config['swift']['password']
+            # # need to find a better way to get this.
+            # ret_hash['ver'] = 'v1.0'
             return ret_hash
 
         def setupKeystone(self):
@@ -247,22 +273,27 @@ class FunctionalTest(unittest2.TestCase):
         if 'keystone' in self.config:
             self.keystone = setupKeystone(self)
             self.keystone['admin_path'] = _gen_keystone_admin_path(self)
-            self.nova = {}
-            self.nova['X-Auth-Token'] = _generate_auth_token(self)
-            gen_path = _gen_nova_path(self)
-            self.glance = {}
-            gen_path = _gen_glance_path(self)
-            self.limits = {}
-            self.flavor = {}
+            # self.nova = {}
+            # self.nova['X-Auth-Token'] = _generate_auth_token(self)
+            # gen_path = _gen_nova_path(self)
+            # self.glance = {}
+            # gen_path = _gen_glance_path(self)
+            # self.limits = {}
+            # self.flavor = {}
         else:
             raise Exception(
             "A valid keystone block must be provided in the configuration.")
         # TODO: add support for swift from keystone service catalog
         if 'swift' in self.config:
-            self.swift = setupSwift(self)
+            setupSwift(self)
+        else if 'nova' in self.config:
+            setupNova(self)
+        else if 'glance' in self.config:
+            setupGlance(self)
         else:
             raise Exception(
-            "A valid swift block must be provided in the configuration.")
+            "A valid nova or swift block must be provided in the configuration.")
+
 
     @classmethod
     def tearDownClass(self):
