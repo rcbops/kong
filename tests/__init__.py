@@ -286,9 +286,9 @@ class FunctionalTest(unittest2.TestCase):
         # TODO: add support for swift from keystone service catalog
         if 'swift' in self.config:
             setupSwift(self)
-        else if 'nova' in self.config:
+        elif 'nova' in self.config:
             setupNova(self)
-        else if 'glance' in self.config:
+        elif 'glance' in self.config:
             setupGlance(self)
         else:
             raise Exception(
