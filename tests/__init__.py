@@ -242,7 +242,7 @@ class FunctionalTest(unittest2.TestCase):
         def setupSwift(self):
             ret_hash = {}
             if 'auth_type' in self.config['swift'] and \
-                    self.config['swift']['auth_type'] == "swauth":
+                self.config['swift']['auth_type'] == "swauth":
                 ret_hash['auth_type'] = "swauth"
                 ret_hash['auth_host'] = self.config['swift']['auth_host']
                 ret_hash['auth_port'] = self.config['swift']['auth_port']
@@ -251,6 +251,7 @@ class FunctionalTest(unittest2.TestCase):
                 ret_hash['account'] = self.config['swift']['account']
                 ret_hash['username'] = self.config['swift']['username']
                 ret_hash['password'] = self.config['swift']['password']
+                ret_hash['region'] = self.config['keystone']['region']
                 # need to find a better way to get this.
                 ret_hash['ver'] = 'v1.0'
                 return ret_hash
