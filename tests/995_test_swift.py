@@ -38,7 +38,8 @@ LRG_OBJ = "include/swift_objects/swift_large"
 class TestSwift(tests.FunctionalTest):
     @tests.skip_test("Currently Not Working")
     def test_000_auth(self):
-        if self.swift['auth_ssl'] == "False":
+        if self.swift.has_key('auth_ssl') and \
+            self.swift['auth_ssl'] == "False":
             prot = "http://"
         else:
             prot = "https://"
