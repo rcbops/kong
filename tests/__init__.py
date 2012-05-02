@@ -293,31 +293,35 @@ class FunctionalTest(unittest2.TestCase):
         self.config = parse_config_file(self)
         # pprint(self.config)
 
-        if 'keystone' in self.config:
+        # if 'keystone' in self.config:
+        #     self.nova = {}
+        #     self.keystone = setupKeystone(self)
+        #     self.keystone['admin_path'] = _gen_keystone_admin_path(self)
+        #     _generate_auth_token(self)
+        #     # self.nova = {}
+        #     # self.nova['X-Auth-Token'] = _generate_auth_token(self)
+        #     # gen_path = _gen_nova_path(self)
+        #     # self.glance = {}
+        #     # gen_path = _gen_glance_path(self)
+        #     # self.limits = {}
+        #     # self.flavor = {}
+        # else:
+        #     raise Exception(
+        #     "A valid keystone block must be provided in the configuration.")
+        # TODO: add support for swift from keystone service catalog
+        if self.config['keystone']:
             self.nova = {}
             self.keystone = setupKeystone(self)
             self.keystone['admin_path'] = _gen_keystone_admin_path(self)
-            _generate_auth_token(self)
-            # self.nova = {}
-            # self.nova['X-Auth-Token'] = _generate_auth_token(self)
-            # gen_path = _gen_nova_path(self)
-            # self.glance = {}
-            # gen_path = _gen_glance_path(self)
-            # self.limits = {}
-            # self.flavor = {}
-        else:
-            raise Exception(
-            "A valid keystone block must be provided in the configuration.")
-        # TODO: add support for swift from keystone service catalog
-        if 'swift' in self.config:
+            _generate_auth_token(self)  
+        if self.config['swift']:
             self.swift = {}
             self.swift = setupSwift(self)
-        if 'nova' in self.config:
+        if self.config['nova']:
             self.nova['X-Auth-Token'] = _generate_auth_token
             setupNova(self)
-        if 'glance' in self.config:
+        if self.config['glance']:
             setupGlance(self)
-
 
     @classmethod
     def tearDownClass(self):
