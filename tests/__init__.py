@@ -317,9 +317,6 @@ class FunctionalTest(unittest2.TestCase):
             setupNova(self)
         if 'glance' in self.config:
             setupGlance(self)
-        else:
-            raise Exception(
-            "A valid nova or swift block must be provided in the configuration.")
 
 
     @classmethod
