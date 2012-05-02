@@ -3,6 +3,7 @@
 from resttest.jsonrequester import JSONRequester
 from kongrequester import print_it
 from kongrequester import KongRequester
+import socket
 r = JSONRequester(request_transformers=[print_it],
                  response_transformers=[print_it])
 SERVICES = {}
@@ -11,18 +12,20 @@ for service in (("image", "glance"), ("compute", "nova"),
     try:
         s, aliases = service[0], service[1:]
         SERVICES[s] = KongRequester(s)
+    except (ValueError,socket.error):
+        #no endpoint
+        SERVICES[s] = None
+    finally:
         try:
             for alias in aliases:
                 SERVICES[alias] = SERVICES[s]
-        except ValueError:
+        except (ValueError,socket.error):
             SERVICES[alias] = None
-    except ValueError:
-        #no endpoint
-        SERVICES[s] = None
+                
 
 #one off keystone-admin
 try:
     SERVICES['identity-admin'] = KongRequester('identity', target='adminURL')
     SERVICES['keystone-admin'] = SERVICES['identity-admin']
-except ValueError:
+except (ValueError,socket.error):
     pass
