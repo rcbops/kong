@@ -31,7 +31,10 @@ import subprocess
 from pprint import pprint
 from resttest.jsontools import nested_search
 from utils import SERVICES
-nova = SERVICES['nova']
+try:
+    nova = SERVICES['nova']
+except KeyError:
+    print "Nova not found in service catalog.  Probably skipping"
 
 
 class TestNovaAPI(tests.FunctionalTest):
