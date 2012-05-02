@@ -555,8 +555,11 @@ class TestNovaAPI(tests.FunctionalTest):
                             data)[0]
         rids = nested_search("/security_groups/*/rules/*/parent_group_id=" +\
                             str(gid) + "/id", data)
-        for rid in rids:
-            nova.DELETE("/os-security-group-rules/%s" % rid, code=202)
+        try:
+            for rid in rids:
+                nova.DELETE("/os-security-group-rules/%s" % rid, code=202)
+        except ValueError:
+            pass #diablo-final does not return json
     test_901_delete_security_group_rule.tags = ['nova']
 
     def test_902_delete_security_group(self):
