@@ -31,11 +31,7 @@ import subprocess
 from pprint import pprint
 from resttest.jsontools import nested_search
 from utils import SERVICES
-try:
-    nova = SERVICES['nova']
-except KeyError:
-    print "Nova not found in service catalog.  Probably skipping"
-
+nova = SERVICES['nova']
 
 class TestNovaAPI(tests.FunctionalTest):
     def ping_host(self, address, interval, max_wait):
