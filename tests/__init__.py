@@ -251,7 +251,6 @@ class FunctionalTest(unittest2.TestCase):
                 ret_hash['account'] = self.config['swift']['account']
                 ret_hash['username'] = self.config['swift']['username']
                 ret_hash['password'] = self.config['swift']['password']
-                ret_hash['region'] = self.config['keystone']['region']
                 # need to find a better way to get this.
                 ret_hash['ver'] = 'v1.0'
                 return ret_hash
@@ -295,6 +294,7 @@ class FunctionalTest(unittest2.TestCase):
         # pprint(self.config)
 
         if 'keystone' in self.config:
+            self.nova = {}
             self.keystone = setupKeystone(self)
             self.keystone['admin_path'] = _gen_keystone_admin_path(self)
             _generate_auth_token(self)
