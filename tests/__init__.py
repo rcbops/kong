@@ -229,15 +229,10 @@ class FunctionalTest(unittest2.TestCase):
                                         self.keystone['apiver'])
             return path
         def setupNova(self):
-            self.nova = {}
             self.nova['X-Auth-Token'] = _generate_auth_token(self)
             _gen_nova_path(self)
             self.limits = {}
             self.flavor = {}
-
-        def setupGlance(self):
-            self.glance = {}
-            gen_path = _gen_glance_path(self)
 
         def setupSwift(self):
             ret_hash = {}
@@ -311,16 +306,19 @@ class FunctionalTest(unittest2.TestCase):
         # TODO: add support for swift from keystone service catalog
         if self.config['keystone']:
             self.nova = {}
+            self.glance = {}
+            self.swift = {}
             self.keystone = setupKeystone(self)
             self.keystone['admin_path'] = _gen_keystone_admin_path(self)
             _generate_auth_token(self)  
+            gen_path = _gen_glance_path(self)
         if self.config['swift']:
-            self.swift = {}
             self.swift = setupSwift(self)
+        if self.config['glance']:
+            setupGlance(self)
         if self.config['nova']:
             self.nova['X-Auth-Token'] = _generate_auth_token
             setupNova(self)
-            setupGlance(self)
 
     @classmethod
     def tearDownClass(self):
