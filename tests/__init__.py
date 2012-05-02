@@ -314,8 +314,6 @@ class FunctionalTest(unittest2.TestCase):
             gen_path = _gen_glance_path(self)
         if self.config['swift']:
             self.swift = setupSwift(self)
-        if self.config['glance']:
-            setupGlance(self)
         if self.config['nova']:
             self.nova['X-Auth-Token'] = _generate_auth_token
             setupNova(self)
