@@ -14,6 +14,7 @@ for service in (("image", "glance"), ("compute", "nova"),
         for alias in aliases:
             SERVICES[alias] = SERVICES[s]
     except ValueError:
+        SERVICES[s] = None
         #no endpoint
         pass
 
