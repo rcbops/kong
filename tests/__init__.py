@@ -320,7 +320,6 @@ class FunctionalTest(unittest2.TestCase):
         if self.config['nova']:
             self.nova['X-Auth-Token'] = _generate_auth_token
             setupNova(self)
-        if self.config['glance']:
             setupGlance(self)
 
     @classmethod
