@@ -256,7 +256,12 @@ class FunctionalTest(unittest2.TestCase):
                                                         'swift',
                                                        self.keystone['region'],
                                                        'publicURL')
+                ret_hash['auth_ssl'] = self.config['swift']['auth_ssl']
+                ret_hash['account'] = self.config['swift']['account']
+                ret_hash['username'] = self.config['swift']['username']
+                ret_hash['password'] = self.config['swift']['password']
                 return ret_hash
+                print ret_hash
             raise Exception(
                           'Cannot find region defined in configuration file.')
 
@@ -311,7 +316,9 @@ class FunctionalTest(unittest2.TestCase):
            self.keystone = setupKeystone(self)
            self.keystone['admin_path'] = _gen_keystone_admin_path(self)
            _generate_auth_token(self)  
-#           gen_path = _gen_glance_path(self)
+
+        if self.config.has_key('glance'):
+            _gen_glance_path(self)
 
         if self.config.has_key('swift'):
             self.swift = setupSwift(self)
