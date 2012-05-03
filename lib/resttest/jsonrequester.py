@@ -17,7 +17,7 @@ class JSONRequester(Requester):
         super(JSONRequester, self).__init__(predicates,
                                             response_transformers,
                                             request_transformers)
-        if not json_response in self.response_transformers:
+        if not safe_json_response in self.response_transformers:
             self.response_transformers.append(safe_json_response)
         if not json_request in self.request_transformers:
             self.request_transformers.append(json_request)
