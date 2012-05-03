@@ -19,7 +19,8 @@ kong
 ====
 
 Kong is a set of tests to be run against a live cluster. Kong sees you when
-you're sleeping and knows when you've been bad or good.
+you're sleeping, and knows when you're awake, it knows if you've been bad or
+good so be good for goodness sake.
 
 
 Quickstart
