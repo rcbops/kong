@@ -105,8 +105,10 @@ def safe_json_response(response, data):
         if data != None and data != "":
             return response, json.loads(data)
     except ValueError:
-        return response, data
-
+        if data is None:
+            data = ""
+        data = str(data)
+    return response, data
 
 def json_request(uri, method, headers, body, redirections, connection_type):
     nuri, nmethod, nheaders, nbody, nredirections, nconnection_type = \
