@@ -100,6 +100,13 @@ def json_response(response, data):
         return response, json.loads(data)
     return response, data
 
+def safe_json_response(response, data):
+    try:
+        if data != None and data != "":
+            return response, json.loads(data)
+    except ValueError:
+        return response, data
+
 
 def json_request(uri, method, headers, body, redirections, connection_type):
     nuri, nmethod, nheaders, nbody, nredirections, nconnection_type = \
