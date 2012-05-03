@@ -14,7 +14,7 @@ class KongRequester(JSONRequester):
         self.service = service
         self.target = target
         self.endpoint, self.token, self.services, self.data = \
-            self.__init_keystone__(service, target)
+            self._init_keystone(service, target)
         self.request_transformers = [print_it] + self.request_transformers
         self.request_transformers += [base_url(self.endpoint)]
         self.request_transformers += [wrap_headers(
@@ -31,7 +31,7 @@ class KongRequester(JSONRequester):
         return url, p.get(s, "user"), p.get(s, "password"), \
             p.get(s, "tenantname"), p.get(s, "region")
 
-    def __init_keystone__(self, service, target):
+    def _init_keystone(self, service, target):
         (url, user, password, tenantname, region) = self.get_config()
         body = {"auth": {"passwordCredentials": {"username": user,
                 "password": password}, "tenantName": tenantname}}
@@ -50,8 +50,9 @@ class KongRequester(JSONRequester):
         finally:
             if endpoint == []:
                 raise ValueError(('No endpoint found for service "%s" in'
-                                 + ' region "%s" with target "%s"') %
-                                 (service, region, target))
+                                 + ' region "%s" with target "%s"\n'
+                                 + 'service catalog: "%s"') %
+                                 (service, region, target, services))
         token = nested_get("/access/token/id", data)
         return endpoint, token, services, data
 

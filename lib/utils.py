@@ -12,14 +12,14 @@ for service in (("image", "glance"), ("compute", "nova"),
     try:
         s, aliases = service[0], service[1:]
         SERVICES[s] = KongRequester(s)
-    except (ValueError, socket.error):
+    except (ValueError, KeyError, socket.error):
         #no endpoint
         SERVICES[s] = None
     finally:
         try:
             for alias in aliases:
                 SERVICES[alias] = SERVICES[s]
-        except (ValueError, socket.error):
+        except (ValueError, KeyError, socket.error):
             SERVICES[alias] = None
 
 #one off keystone-admin
