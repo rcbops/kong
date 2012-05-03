@@ -39,7 +39,7 @@ class TestNovaAPI2(tests.FunctionalTest):
 
     @tests.skip_test("currently not working")
     def test_upload_kernel_to_glance(self):
-        kernel·=·self.config['environment']['kernel']
+        kernel = self.config['environment']['kernel']
         headers = {'x-image-meta-is-public': 'true',
                    'x-image-meta-name': 'test-kernel',
                    'x-image-meta-disk-format': 'aki',
