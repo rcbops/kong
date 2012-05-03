@@ -555,11 +555,8 @@ class TestNovaAPI(tests.FunctionalTest):
                             data)[0]
         rids = nested_search("/security_groups/*/rules/*/parent_group_id=" +\
                             str(gid) + "/id", data)
-        try:
-            for rid in rids:
-                nova.DELETE("/os-security-group-rules/%s" % rid, code=202)
-        except ValueError:
-            pass #diablo-final does not return json
+        for rid in rids:
+            nova.DELETE("/os-security-group-rules/%s" % rid, code=202)
     test_901_delete_security_group_rule.tags = ['nova']
 
     def test_902_delete_security_group(self):
@@ -568,3 +565,24 @@ class TestNovaAPI(tests.FunctionalTest):
         nova.DELETE("/os-security-groups/%s" % gid, timeout=60,
                     delay=5, code=202)
     test_902_delete_security_group.tags = ['nova']
+
+    def test_901_delete_security_group_rule_diablo_final(self):
+        data = nova.GET("/os-security-groups")[1]
+        gid = nested_search("/security_groups/*/name=kongsec/id",
+                            data)[0]
+        rids = nested_search("/security_groups/*/rules/*/parent_group_id=" +\
+                            str(gid) + "/id", data)
+        try:
+            for rid in rids:
+                nova.DELETE("/os-security-group-rules/%s" % rid, code=202)
+        except ValueError:
+            pass
+            
+    test_901_delete_security_group_rule_diablo_final.tags = ['nova']
+    
+    def test_902_delete_security_group_diablo_final(self):
+        gid = nested_search("/security_groups/*/name=kongsec/id",
+                            nova.GET("/os-security-groups")[1])[0]
+        nova.DELETE("/os-security-groups/%s" % gid, timeout=60,
+                    delay=5, code=404)
+    test_902_delete_security_group_diablo_final.tags = ['nova']
