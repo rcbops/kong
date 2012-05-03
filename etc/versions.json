@@ -75,13 +75,13 @@
         "min": "essex"
     },
     "test_901_delete_security_group_rule": {
-        "min": "essex",
+        "min": "essex"
     },
     "test_902_delete_security_group": {
         "min": "essex"
     },
     "test_901_delete_security_group_rule_diablo_final": {
-        "max": "diablo-final",
+        "max": "diablo-final"
     },
     "test_902_delete_security_group_diablo_final": {
         "max": "diablo-final"
