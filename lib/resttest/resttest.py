@@ -118,9 +118,11 @@ class Requester(object):
             for function in desc.get(topic, ()):
                 f, f_keys = function
                 f_args = tuple([kwargs[a] for a in f_keys if a in kwargs])
-                if len(f_args) == len(f_keys):
+                if len(f_args) > 0 and len(f_args) == len(f_keys):
                     kwargs[topic] += [f(*f_args)]
                     for k in f_keys:
                         del kwargs[k]
+                elif len(f_keys) == 0:
+                    kwargs[topic] += [f]
         args = tuple(args)
         return self.request(*args, **kwargs)
