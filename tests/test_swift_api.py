@@ -18,80 +18,82 @@ class TestSwiftAPI2(tests.FunctionalTest):
     tags = ['swift']
 
     def test_001_create_container(self):
-        r, d = swift.PUT("/" + CONTAINER + "?format=json", code=201)
+        swift.PUT("/" + CONTAINER + "?format=json", code=201)
 
 
     def test_002_list_container_meta(self):
-        r, d = swift.HEAD( "/" + CONTAINER + "?format=json", code=204)
+        swift.HEAD( "/" + CONTAINER + "?format=json", code=204)
 
 
     def test_003_list_containers(self):
-        r, d = swift.GET('?format=json', code=200)
+        swift.GET('?format=json', code=200)
         #check to see container count is greater than zero
         if int(r['x-account-container-count']) < 1:
             raise AssertionError("No containers found")
 
 
     def test_004_create_custom_container_meta(self):
-        """need to use wrap_headers somehow to add in a custom metadata k,v"""
-        # CUSTOM-META = {"X-Container-Meta-blah": "blahblah"}
-        # r, d = swift.POST('/')
+        headers = {"X-Container-Meta-blah": "blahblah"}
+        swift.POST('/CONTAINER' +'?format=json', headers=headers, code=204)
 
 
+
+
+# create objects
     @tests.skip_test("Currently not working")
-    def test_003_create_small_object(self):
-        # build headers to pass to wrap_headers
-        ADDITIONAL_HEADERS = ({'Content-Length': '%d' %os.path.getsize(SMALL_OBJ), \
+    def test_053_create_small_object(self):
+        headers = ({'Content-Length': '%d' %os.path.getsize(SMALL_OBJ), \
                 'Content-Type': 'application/octet-stream'})
-        # somehow use wrap_headers to pass additional headers to request
-        # r, d = swift.PUT(CONTAINER + '/' + SMALL_OBJ) + ADDITIONAL_HEADERS
+        swift.PUT(CONTAINER + '/' + SMALL_OBJ + '?format=json', \
+                headers=headers, code=201)
 
     @tests.skip_test("Currently not working")
-    def test_005_update_object_meta(self):
-        # build headers to pass to wrap_headers
-        ADDITIONAL_HEADERS=({'X-Object-Meta-blah': 'blahblah'})
-        swift.POST('/CONTAINER/SMALL_OBJ' + '?format=json', code=202)
-
-    @tests.skip_test("Currently not working")
-    def test_004_create_medium_object(self):
-        # build headers to pass to wrap_headers
-        ADDITIONAL_HEADERS = ({'Content-Length': '%d' %os.path.getsize(MED_OBJ), \
+    def test_006_create_medium_object(self):
+        headers = ({'Content-Length': '%d' %os.path.getsize(MED_OBJ), \
                 'Content-Type': 'application/octet-stream'})
-        # somehow use wrap_headers to pass additional headers to request
-        # r, d = swift.PUT(CONTAINER + '/' + MED_OBJ) + ADDITIONAL_HEADERS
-
+        swift.PUT(CONTAINER + '/' + MED_OBJ + '?format=json', \
+                headers=headers, code=201)
 
     @tests.skip_test("Currently not working")
-    def test_005_create_large_object(self):
-        # build headers to pass to wrap_headers
-        ADDITIONAL_HEADERS = ({'Content-Length': '%d' %os.path.getsize(MED_OBJ), \
+    def test_007_create_large_object(self):
+        headers = ({'Content-Length': '%d' %os.path.getsize(LRG_OBJ), \
                 'Content-Type': 'application/octet-stream'})
-        # somehow use wrap_headers to pass additional headers to request
-        #r, d = swift.PUT(CONTAINER + '/' + LRG_OBJ) + ADDITIONAL_HEADERS
+        swift.PUT(CONTAINER + '/' + LRG_OB + '?format=json', \
+                headers=headers, code=201)
 
 
+# update object Meta
     @tests.skip_test("Currently not working")
-    def test_006_get_small_object(self):
+    def test_008_update_object_meta(self):
+        headers = ({'X-Object-Meta-blah': 'blahblah'})
+        swift.POST('/CONTAINER/SMALL_OBJ' + '?format=json',\
+                headers=headers, code=202)
+
+
+# get objects
+    @tests.skip_test("Currently not working")
+    def test_009_get_small_object(self):
         swift.GET('/CONTAINER/SMALL_OBJ' + '?format=json', code=200)
 
     @tests.skip_test("Currently not working")
-    def test_007_get_medium_object(self):
+    def test_010_get_medium_object(self):
         swift.GET('/CONTAINER/MED_OBJ' + '?format=json', code=200)
 
     @tests.skip_test("Currently not working")
-    def test_008_get_large_object(self):
+    def test_011_get_large_object(self):
         swift.GET('/CONTAINER/LRG_OBJ' + '?format=json', code=200)
 
+# delete objects
     @tests.skip_test("Currently not working")
-    def test_009_delete_small_object(self):
+    def test_012_delete_small_object(self):
         swift.DELETE('/CONTAINER/SMALL_OBJ' + '?format=json', code=204)
 
     @tests.skip_test("Currently not working")
-    def test_010_delete_medium_object(self):
+    def test_013_delete_medium_object(self):
         swift.DELETE('/CONTAINER/MED_OBJ' + '?format=json', code=204)
 
     @tests.skip_test("Currently not working")
-    def test_010_delete_large_object(self):
+    def test_014_delete_large_object(self):
         swift.DELETE('/CONTAINER/LRG_OBJ' + '?format=json', code=204)
 
 
