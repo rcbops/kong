@@ -73,5 +73,17 @@
     },
     "test_210_list_addresses_essex": {
         "min": "essex"
+    },
+    "test_901_delete_security_group_rule": {
+        "min": "essex"
+    },
+    "test_902_delete_security_group": {
+        "min": "essex"
+    },
+    "test_901_delete_security_group_rule_diablo_final": {
+        "max": "diablo-final"
+    },
+    "test_902_delete_security_group_diablo_final": {
+        "max": "diablo-final"
     }
 }

@@ -315,17 +315,20 @@ class FunctionalTest(unittest2.TestCase):
            self.swift = {}
            self.keystone = setupKeystone(self)
            self.keystone['admin_path'] = _gen_keystone_admin_path(self)
-           _generate_auth_token(self)  
-
-        if self.config.has_key('glance'):
-            _gen_glance_path(self)
+           _generate_auth_token(self)
+           try:
+               _gen_glance_path(self)
+           except Exception:
+               print "Valid endpoint not found for glance in configured" + \
+                   "region %s" % self.keystone['region'] + \
+                   "Attempting to continue anyway"
+           if self.config.has_key('nova'):
+               setupNova(self)
 
         if self.config.has_key('swift'):
             self.swift = setupSwift(self)
 
-        if self.config.has_key('nova'):
-            self.nova['X-Auth-Token'] = _generate_auth_token
-            setupNova(self)
+
 
 
     @classmethod
