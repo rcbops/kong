@@ -1,5 +1,6 @@
 from resttest.jsontools import nested_search
 from resttest.httptools import wrap_headers
+from kongrequester import KongRequester
 from utils import SERVICES
 import tests
 import os
@@ -11,7 +12,8 @@ LRG_OBJ = "include/swift_objects/swift_large"
 CONTAINER = "kongtestcontainer"
 
 
-swift = SERVICES['swift']
+#swift = SERVICES['swift']
+swift = KongRequester('object-store')
 
 
 class TestSwiftAPI2(tests.FunctionalTest):
@@ -26,15 +28,15 @@ class TestSwiftAPI2(tests.FunctionalTest):
 
 
     def test_003_list_containers(self):
-        swift.GET('?format=json', code=200)
+        response, body = swift.GET('?format=json', code=200)
         #check to see container count is greater than zero
-        if int(r['x-account-container-count']) < 1:
+        if int(response['x-account-container-count']) < 1:
             raise AssertionError("No containers found")
 
 
     def test_004_create_custom_container_meta(self):
         headers = {"X-Container-Meta-blah": "blahblah"}
-        swift.POST('/CONTAINER' +'?format=json', headers=headers, code=204)
+        swift.POST('/' + CONTAINER + '?format=json', headers=headers, code=204)
 
 
 
@@ -58,7 +60,7 @@ class TestSwiftAPI2(tests.FunctionalTest):
     def test_007_create_large_object(self):
         headers = ({'Content-Length': '%d' %os.path.getsize(LRG_OBJ), \
                 'Content-Type': 'application/octet-stream'})
-        swift.PUT(CONTAINER + '/' + LRG_OB + '?format=json', \
+        swift.PUT(CONTAINER + '/' + LRG_OBJ + '?format=json', \
                 headers=headers, code=201)
 
 
@@ -66,14 +68,14 @@ class TestSwiftAPI2(tests.FunctionalTest):
     @tests.skip_test("Currently not working")
     def test_008_update_object_meta(self):
         headers = ({'X-Object-Meta-blah': 'blahblah'})
-        swift.POST('/CONTAINER/SMALL_OBJ' + '?format=json',\
+        swift.POST('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json',\
                 headers=headers, code=202)
 
 
 # get objects
     @tests.skip_test("Currently not working")
     def test_009_get_small_object(self):
-        swift.GET('/CONTAINER/SMALL_OBJ' + '?format=json', code=200)
+        swift.GET('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json', code=200)
 
     @tests.skip_test("Currently not working")
     def test_010_get_medium_object(self):
@@ -81,12 +83,12 @@ class TestSwiftAPI2(tests.FunctionalTest):
 
     @tests.skip_test("Currently not working")
     def test_011_get_large_object(self):
-        swift.GET('/CONTAINER/LRG_OBJ' + '?format=json', code=200)
+        swift.GET('/' + CONTAINER + '/' + LRG_OBJ + '?format=json', code=200)
 
 # delete objects
     @tests.skip_test("Currently not working")
     def test_012_delete_small_object(self):
-        swift.DELETE('/CONTAINER/SMALL_OBJ' + '?format=json', code=204)
+        swift.DELETE('/' + CONTAINER+ '/' + SMALL_OBJ + '?format=json', code=204)
 
     @tests.skip_test("Currently not working")
     def test_013_delete_medium_object(self):
@@ -94,11 +96,11 @@ class TestSwiftAPI2(tests.FunctionalTest):
 
     @tests.skip_test("Currently not working")
     def test_014_delete_large_object(self):
-        swift.DELETE('/CONTAINER/LRG_OBJ' + '?format=json', code=204)
+        swift.DELETE('/' + CONTAINER + '/' + LRG_OBJ + '?format=json', code=204)
 
 
     def test_100_delete_container(self):
-        swift.DELETE('/CONTAINER' + '?format=json', code=204)
+        swift.DELETE('/' + CONTAINER + '?format=json', code=204)
 
 
 
