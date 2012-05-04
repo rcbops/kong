@@ -109,7 +109,6 @@ class Requester(object):
                   "response_transformers"]
         #move args we care about to kwargs for uniform access
         for k, v in desc.get("args", {}).items():
-            print k, v
             kwargs[k] = args[v]
             del args[v]
         #for each topic, we grab the right arguments and init the functions
