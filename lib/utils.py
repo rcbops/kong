@@ -8,7 +8,7 @@ r = JSONRequester(request_transformers=[print_it],
                  response_transformers=[print_it])
 SERVICES = {}
 for service in (("image", "glance"), ("compute", "nova"),
-          ("object-storage", "swift"), ("identity", "keystone")):
+          ("object-store", "swift"), ("identity", "keystone")):
     try:
         s, aliases = service[0], service[1:]
         SERVICES[s] = KongRequester(s)

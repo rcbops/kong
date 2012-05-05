@@ -13,9 +13,7 @@ LRG_OBJ = "include/swift_objects/swift_large"
 CONTAINER = "kongtestcontainer"
 
 
-#swift = SERVICES['swift']
-swift = KongRequester('object-store')
-
+swift = SERVICES['object-store']
 
 class TestSwiftAPI2(tests.FunctionalTest):
     tags = ['swift']
