@@ -15,16 +15,15 @@ CONTAINER = "kongtestcontainer"
 
 swift = SERVICES['object-store']
 
+
 class TestSwiftAPI2(tests.FunctionalTest):
     tags = ['swift']
 
     def test_001_create_container(self):
         swift.PUT("/" + CONTAINER + "?format=json", code=201)
 
-
     def test_002_list_container_meta(self):
-        swift.HEAD( "/" + CONTAINER + "?format=json", code=204)
-
+        swift.HEAD("/" + CONTAINER + "?format=json", code=204)
 
     def test_003_list_containers(self):
         response, body = swift.GET('?format=json', code=200)
@@ -32,13 +31,9 @@ class TestSwiftAPI2(tests.FunctionalTest):
         if int(response['x-account-container-count']) < 1:
             raise AssertionError("No containers found")
 
-
     def test_004_create_custom_container_meta(self):
         headers = {"X-Container-Meta-blah": "blahblah"}
         swift.POST('/' + CONTAINER + '?format=json', headers=headers, code=204)
-
-
-
 
 # create objects
 #    @tests.skip_test("Currently not working")
@@ -69,7 +64,6 @@ class TestSwiftAPI2(tests.FunctionalTest):
 #        swift.PUT_raw('/' + CONTAINER + '/' + LRG_OBJ, \
 #                headers=headers, body=object,  code=201)
 
-
 # update object Meta
 #    @tests.skip_test("Currently not working")
     def test_008_create_custom_object_meta(self):
@@ -77,43 +71,44 @@ class TestSwiftAPI2(tests.FunctionalTest):
         swift.POST('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json',\
                 headers=headers, code=202)
 
-
 # get objects
 #    @tests.skip_test("Currently not working")
     def test_009_get_normal_object(self):
         swift.GET_raw('/' + CONTAINER + '/' + SMALL_OBJ, code=200)
-#        swift.GET_raw('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json', code=200)
-
+#       swift.GET_raw('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json',
+#                     code=200)
 
     def test_010_get_manifest_object(self):
         pass
 
 #    @tests.skip_test("Currently not working")
 #    def test_010_get_medium_object(self):
-#        swift.GET_raw('/' + CONTAINER + '/' + MED_OBJ + '?format=json', code=200)
+#        swift.GET_raw('/' + CONTAINER + '/' + MED_OBJ + '?format=json',
+#                      code=200)
 #
 #    @tests.skip_test("Currently not working")
 #    def test_011_get_large_object(self):
-#        swift.GET_raw('/' + CONTAINER + '/' + LRG_OBJ + '?format=json', code=200)
+#        swift.GET_raw('/' + CONTAINER + '/' + LRG_OBJ + '?format=json',
+#                       code=200)
 
 # delete objects
 #    @tests.skip_test("Currently not working")
     def test_012_delete_normal_object(self):
-        swift.DELETE('/' + CONTAINER+ '/' + SMALL_OBJ + '?format=json', code=204)
+        swift.DELETE('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json',
+                     code=204)
 
     def test_013_delete_manifest_object(self):
         pass
 
 #    @tests.skip_test("Currently not working")
 #    def test_013_delete_medium_object(self):
-#        swift.DELETE('/' + CONTAINER + '/' + MED_OBJ + '?format=json', code=204)
+#        swift.DELETE('/' + CONTAINER + '/' + MED_OBJ + '?format=json',
+#                      code=204)
 #
 #    @tests.skip_test("Currently not working")
 #    def test_014_delete_large_object(self):
-#        swift.DELETE('/' + CONTAINER + '/' + LRG_OBJ + '?format=json', code=204)
+#        swift.DELETE('/' + CONTAINER + '/' + LRG_OBJ + '?format=json',
+#                      code=204)
 
     def test_100_delete_container(self):
         swift.DELETE('/' + CONTAINER + '?format=json', code=204)
-
-
-
