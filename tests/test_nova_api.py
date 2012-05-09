@@ -6,6 +6,7 @@ import os
 nova = SERVICES['nova']
 glance = SERVICES['glance']
 
+
 def md5sum_file(path):
     from hashlib import md5
     md5sum = md5()
@@ -198,7 +199,7 @@ class TestNovaAPI(tests.FunctionalTest):
 
     def test_210_list_addresses(self):
         label = self.config['nova']['network_label']
-        r,d = nova.GET("/servers")
+        r, d = nova.GET("/servers")
         sid = nested_search("/servers/*/name=testing server creation/id", d)[0]
         addrs = nova.GET('/servers/%s/ips' % (sid),
                          code=200)[1]

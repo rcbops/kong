@@ -118,12 +118,12 @@ class TestKeystoneAPI(tests.FunctionalTest):
         response, d = admin.GET("/tenants", code=200)
         if len(nested_search("/tenants/*/name=kongtenant", d)) != 1:
             raise AssertionError("kongtenant not found")
-        
+
     def test_keystone_v2_get_extension_list(self):
         response, d = admin.GET("/extensions", code=200)
         if not (type(d['extensions']['values']) == type([])):
             raise AssertionError("Returned extensions is not a list")
-    
+
     def test_keystone_v2_04_delete_tenant(self):
         response, data = admin.GET("/tenants")
         kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]
