@@ -1,16 +1,16 @@
-from resttest.jsontools import nested_search
-from resttest.httptools import wrap_headers
-from kongrequester import KongRequester
 from utils import SERVICES
 import tests
 import os
+from resttest.jsontools import nested_search
+
+NORMAL_OBJ = "include/swift_objects/normal_object"
+MULTIPART_OBJ_1 = "include/swift_objects/1"
+MULTIPART_OBJ_2 = "include/swift_objects/2"
+MULTIPART_OBJ_3 = "include/swift_objects/3"
 
 
-SMALL_OBJ = "include/swift_objects/swift_small"
-#SMALL_OBJ = "swift_small"
-MED_OBJ = "include/swift_objects/swift_medium"
-LRG_OBJ = "include/swift_objects/swift_large"
 CONTAINER = "kongtestcontainer"
+PREFIX = "myprefix"
 
 
 swift = SERVICES['object-store']
@@ -20,10 +20,10 @@ class TestSwiftAPI2(tests.FunctionalTest):
     tags = ['swift']
 
     def test_001_create_container(self):
-        swift.PUT("/" + CONTAINER + "?format=json", code=201)
+        swift.PUT('/%s?format=json' % (CONTAINER,), code=201)
 
     def test_002_list_container_meta(self):
-        swift.HEAD("/" + CONTAINER + "?format=json", code=204)
+        swift.HEAD('/%s?format=json' % (CONTAINER,), code=204)
 
     def test_003_list_containers(self):
         response, body = swift.GET('?format=json', code=200)
@@ -33,82 +33,71 @@ class TestSwiftAPI2(tests.FunctionalTest):
 
     def test_004_create_custom_container_meta(self):
         headers = {"X-Container-Meta-blah": "blahblah"}
-        swift.POST('/' + CONTAINER + '?format=json', headers=headers, code=204)
+        swift.POST('/%s?format=json' % (CONTAINER), headers=headers, code=204)
 
 # create objects
-#    @tests.skip_test("Currently not working")
     def test_005_create_normal_object(self):
-        headers = ({'Content-Length': '%d' % os.path.getsize(SMALL_OBJ), \
+        headers = ({'Content-Length': '%d' % os.path.getsize(NORMAL_OBJ), \
                 'Content-Type': 'application/octet-stream'})
-        object = open(SMALL_OBJ, "rb")
-        swift.PUT_raw('/' + CONTAINER + '/' + SMALL_OBJ, \
+        object = open(NORMAL_OBJ, "rb")
+        swift.PUT_raw('/%s/%s' % (CONTAINER, NORMAL_OBJ), \
                 headers=headers, body=object,  code=201)
 
-    def test_006_create_manifest_object(self):
-        pass
 
-#    @tests.skip_test("Currently not working")
-#    def test_006_create_medium_object(self):
-#
-#        headers = ({'Content-Length': '%d' % os.path.getsize(MED_OBJ), \
-#                'Content-Type': 'application/octet-stream'})
-#        object = open(MED_OBJ, "rb")
-#        swift.PUT_raw('/' + CONTAINER + '/' + MED_OBJ, \
-#                headers=headers, body=object,  code=201)
-#
-##    @tests.skip_test("Currently not working")
-#    def test_007_create_large_object(self):
-#        headers = ({'Content-Length': '%d' % os.path.getsize(LRG_OBJ), \
-#                'Content-Type': 'application/octet-stream'})
-#        object = open(LRG_OBJ, "rb")
-#        swift.PUT_raw('/' + CONTAINER + '/' + LRG_OBJ, \
-#                headers=headers, body=object,  code=201)
+    def test_006_create_manifest_object(self):
+        # upload the 3 parts
+        for m in [MULTIPART_OBJ_1, MULTIPART_OBJ_2, MULTIPART_OBJ_3]:
+            headers = ({'Content-Length': '%d' % (os.path.getsize(m)), \
+                    'Content-Type': 'application/octet-stream'})
+            object = open(m, "rb")
+            swift.PUT_raw('/%s/%s/%s' % (CONTAINER, PREFIX, os.path.basename(m)),
+                    headers=headers, body=object, code=201)
+
+        # create the manifest file
+        headers = ({'X-Object-Manifest': '%s/%s' % (CONTAINER, PREFIX), \
+                'Content-Length': '0'})
+        swift.PUT_raw('/%s/%s' % (CONTAINER, PREFIX), \
+                headers=headers, code=201)
 
 # update object Meta
 #    @tests.skip_test("Currently not working")
     def test_008_create_custom_object_meta(self):
         headers = ({'X-Object-Meta-blah': 'blahblah'})
-        swift.POST('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json',\
+        swift.POST('/%s/%s?format=json' % (CONTAINER, NORMAL_OBJ),\
                 headers=headers, code=202)
 
 # get objects
 #    @tests.skip_test("Currently not working")
     def test_009_get_normal_object(self):
-        swift.GET_raw('/' + CONTAINER + '/' + SMALL_OBJ, code=200)
-#       swift.GET_raw('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json',
-#                     code=200)
+        swift.GET_raw('/%s/%s?format=json' % (CONTAINER, NORMAL_OBJ), code=200)
 
     def test_010_get_manifest_object(self):
-        pass
+        result, body = swift.GET_raw('/%s/%s' % (CONTAINER, PREFIX), code=200)
+        if body != 'abc':
+            raise AssertionError('file does not contain expected contents')
 
-#    @tests.skip_test("Currently not working")
-#    def test_010_get_medium_object(self):
-#        swift.GET_raw('/' + CONTAINER + '/' + MED_OBJ + '?format=json',
-#                      code=200)
-#
-#    @tests.skip_test("Currently not working")
-#    def test_011_get_large_object(self):
-#        swift.GET_raw('/' + CONTAINER + '/' + LRG_OBJ + '?format=json',
-#                       code=200)
-
-# delete objects
-#    @tests.skip_test("Currently not working")
     def test_012_delete_normal_object(self):
-        swift.DELETE('/' + CONTAINER + '/' + SMALL_OBJ + '?format=json',
+        swift.DELETE('/%s/%s?format=json' % (CONTAINER, NORMAL_OBJ),
                      code=204)
 
     def test_013_delete_manifest_object(self):
-        pass
+        # delete manifest file first
+        swift.DELETE('/%s/%s?format=json' % (CONTAINER, PREFIX),
+                     code=204)
+        # delete all parts individually
+        for m in [MULTIPART_OBJ_1, MULTIPART_OBJ_2, MULTIPART_OBJ_3]:
+            swift.DELETE('/%s/%s/%s' % (CONTAINER, PREFIX, \
+                    os.path.basename(m)), code=204)
 
-#    @tests.skip_test("Currently not working")
-#    def test_013_delete_medium_object(self):
-#        swift.DELETE('/' + CONTAINER + '/' + MED_OBJ + '?format=json',
-#                      code=204)
-#
-#    @tests.skip_test("Currently not working")
-#    def test_014_delete_large_object(self):
-#        swift.DELETE('/' + CONTAINER + '/' + LRG_OBJ + '?format=json',
-#                      code=204)
 
     def test_100_delete_container(self):
-        swift.DELETE('/' + CONTAINER + '?format=json', code=204)
+        # need to get a list of objects in the container and delete them
+        response, body = swift.GET(('/%s?format=json') % (CONTAINER), code=200)
+        # pull the objects out of the returned json
+        objects = nested_search('*/name', body)
+        # delete the objects one by one
+        for obj in objects:
+           swift.DELETE('%s/%s' % (CONTAINER, obj), code=204)
+
+        # now we can delete the container    
+        swift.DELETE('/%s?format=json' % (CONTAINER), code=204)
