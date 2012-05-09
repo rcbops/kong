@@ -53,44 +53,36 @@ class TestKeystoneAPI2(tests.FunctionalTest):
                                "password": "bad"}}},
                                code=401)
 
-    def test_keystone_v2_successful_auth(self):
-        r.POST('/tokens',
-               body={"auth": {"passwordCredentials":
-                              {"username": self.keystone['user'],
-                               "password": self.keystone['pass']},
-                                 "tenantId": self.keystone['tenantid']}},
-               code=200)
-
     def test_keystone_d5_bad_key(self):
         r.POST('/tokens',
                body={"passwordCredentials":
-                      {"username": self.keystone['user'],
+                      {"username": r.get_config()[1],
                        "password": "badpass"}},
                code=401)
 
     def test_keystone_v2_bad_key(self):
         r.POST('/tokens',
                body={"auth": {"passwordCredentials":
-                              {"username": self.keystone['user'],
+                              {"username": r.get_config()[1],
                                "password": "badpass"}}},
                code=401)
 
     def test_keystone_d5_no_key(self):
         r.POST('/tokens',
                body={"passwordCredentials":
-                      {"username": self.keystone['user']}},
+                      {"username": r.get_config()[1]}},
                code=400)
 
     def test_keystone_v2_no_key(self):
         r.POST('/tokens',
                body={"auth": {"passwordCredentials":
-                              {"username": self.keystone['user']}}},
+                              {"username": r.get_config()[1]}}},
                code=400)
 
     def test_keystone_v2_no_key_essex(self):
         r.POST('/tokens',
                body={"auth": {"passwordCredentials":
-                              {"username": self.keystone['user']}}},
+                              {"username": r.get_config()[1]}}},
                code=401)
 
     def test_keystone_v2_check_token(self):
