@@ -92,7 +92,6 @@ class FunctionalTest(unittest2.TestCase):
                     m.tags = self.__class__.tags
         except AttributeError:
             pass
-        #TODO: need to move this stuff out to util files
 
         def parse_config_file(self):
             cfg = os.path.abspath(os.path.join(os.path.dirname(__file__),
