@@ -264,17 +264,6 @@ class FunctionalTest(unittest2.TestCase):
                 print ret_hash
             raise Exception(
                           'Cannot find region defined in configuration file.')
-
-            # ret_hash = {}
-            # ret_hash['auth_host'] = self.config['swift']['auth_host']
-            # ret_hash['auth_port'] = self.config['swift']['auth_port']
-            # ret_hash['auth_prefix'] = self.config['swift']['auth_prefix']
-            # ret_hash['auth_ssl'] = self.config['swift']['auth_ssl']
-            # ret_hash['account'] = self.config['swift']['account']
-            # ret_hash['username'] = self.config['swift']['username']
-            # ret_hash['password'] = self.config['swift']['password']
-            # # need to find a better way to get this.
-            # ret_hash['ver'] = 'v1.0'
             return ret_hash
 
         def setupKeystone(self):
@@ -291,24 +280,7 @@ class FunctionalTest(unittest2.TestCase):
 
         # Parse the config file
         self.config = parse_config_file(self)
-        # pprint(self.config)
 
-        # if 'keystone' in self.config:
-        #     self.nova = {}
-        #     self.keystone = setupKeystone(self)
-        #     self.keystone['admin_path'] = _gen_keystone_admin_path(self)
-        #     _generate_auth_token(self)
-        #     # self.nova = {}
-        #     # self.nova['X-Auth-Token'] = _generate_auth_token(self)
-        #     # gen_path = _gen_nova_path(self)
-        #     # self.glance = {}
-        #     # gen_path = _gen_glance_path(self)
-        #     # self.limits = {}
-        #     # self.flavor = {}
-        # else:
-        #     raise Exception(
-        #     "A valid keystone block must be provided in the configuration.")
-        # TODO: add support for swift from keystone service catalog
         if self.config.has_key('keystone'):
            self.nova = {}
            self.glance = {}
