@@ -23,6 +23,8 @@ def glance_headers(name, file, format, kernel=None, ramdisk=None):
 
 class TestNovaAPI2(tests.FunctionalTest):
 
+    tags = ['nova', 'nova-api']
+
     def ping_host(self, address, interval, max_wait):
         """
         Ping a host ever <interval> seconds, up to a maximum of <max_wait>
@@ -45,8 +47,6 @@ class TestNovaAPI2(tests.FunctionalTest):
                 return False
             time.sleep(2)
         return False
-
-    tags = ['nova', 'nova-api', 'keystone']
 
     def test_nova_list_flavors(self):
         r, d = nova.GET("/flavors", code=200)
