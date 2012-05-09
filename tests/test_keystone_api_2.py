@@ -48,10 +48,10 @@ class TestKeystoneAPI2(tests.FunctionalTest):
 
     def test_keystone_v2_failed_auth(self):
         r.POST('/tokens',
-                    body={"auth": {"passwordCredentials":
-                                   {"username": "bad",
-                                    "password": "bad"}}},
-                                    code=401)
+               body={"auth": {"passwordCredentials":
+                              {"username": "bad",
+                               "password": "bad"}}},
+                               code=401)
 
     def test_keystone_d5_successful_auth(self):
         r.POST_with_keys_eq('/tokens',
@@ -101,21 +101,25 @@ class TestKeystoneAPI2(tests.FunctionalTest):
                               {"username": self.keystone['user']}}},
                code=401)
 
-    def test_keystone_v2_get_tenant_list_essex(self):
-        response, d = r.GET("/tenants")
-        self.assertEqual(len(nested_search("/tenants/*/id=%s" %
-                                       (self.keystone['tenantid']),
-                                       d)), 1)
-
     def test_keystone_v2_check_token(self):
         admin.HEAD("/tokens/%s" % r.token, code=204)
 
-    def test_keystone_v2_create_tenant(self):
+    def test_keystone_v2_validate_token(self):
+        admin.GET_with_keys_eq("/tokens/%s" % r.token,
+                               {"/access/user/username": r.get_config()[1]},
+                               code=200)
+
+    def test_keystone_v2_validate_token_d5(self):
+        admin.GET_with_keys_eq("/tokens/%s" % r.token,
+                               {"/auth/user/username": r.get_config()[1]},
+                               code=200)
+
+    def test_keystone_v2_01_create_tenant(self):
         admin.POST('/tenants', body={"tenant": {
                                 "name": "kongtenant",
                                 "description": "description"}}, code=200)
 
-    def test_keystone_v2_create_tenant_user(self):
+    def test_keystone_v2_02_create_tenant_user(self):
         response, data = admin.GET("/tenants")
         kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]
         user = {"user": {
@@ -125,12 +129,22 @@ class TestKeystoneAPI2(tests.FunctionalTest):
                              "email": ""}}
         admin.POST("/users", body=user, code=200)
 
-    def test_keystone_v2_delete_tenant(self):
+    def test_keystone_v2_03_get_tenant_list_essex(self):
+        response, d = admin.GET("/tenants", code=200)
+        self.assertEqual(len(nested_search("/tenants/*/name=kongtenant", d)),
+                         1)
+        
+    def test_keystone_v2_get_extension_list(self):
+        response, d = admin.GET("/extensions", code=200)
+        if not (type(d['extensions']['values']) == type([])):
+            raise AssertionError("Returned extensions is not a list")
+    
+    def test_keystone_v2_04_delete_tenant(self):
         response, data = admin.GET("/tenants")
         kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]
         admin.DELETE("/tenants/%s" % kong_tenant, code=204)
 
-    def test_keystone_v2_delete_user(self):
+    def test_keystone_v2_05_delete_user(self):
         response, data = admin.GET("/users")
         kong_user = nested_search("/users/*/name=kongadmin/id", data)[0]
         admin.DELETE("/users/%s" % kong_user, code=204)
