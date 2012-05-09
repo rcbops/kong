@@ -13,8 +13,20 @@ class JSONRequester(Requester):
                             (with_keys_eq, ["d"])],
             "response_transformers": [
                 (safe_json_response, [])],
-            "request_transformers":[
-                (json_request, ["uri", "headers", "body", "response_transformers"])]}
+            "request_transformers": [
+                (json_request, [])]}
+        self._http_raw_with_keys_eq = {
+            "args": {"d": 1},
+            "predicates": [(codep, ["code"]),
+                            (with_keys_eq, ["d"])],
+            "response_transformers": [
+                (safe_json_response, [])]}
+        self._http_raw_with_keys_ne = {
+            "args": {"d": 1},
+            "predicates": [(codep, ["code"]),
+                            (with_keys_ne, ["d"])],
+            "response_transformers": [
+                (safe_json_response, [])]}
         self._http_with_keys_ne = {
             "args": {"d": 1},
             "predicates": [
@@ -22,16 +34,17 @@ class JSONRequester(Requester):
                 (with_keys_ne, ["d"])],
             "response_transformers": [
                 (safe_json_response, [])],
-            "request_transformers":[
-                (json_request, ["uri", "headers", "body", "response_transformers"])]}
+            "request_transformers": [
+                (json_request, ["uri", "headers", "body",
+                                "response_transformers"])]}
         self._http = {
-            "args": {"uri": 0},         
+            "args": {"uri": 0},
             "predicates": [(codep, ["code"])],
             "response_transformers": [(safe_json_response, [])],
-            "request_transformers":[
+            "request_transformers": [
                 (json_request, [])]}
         self._http_raw = {
-            "args": {"uri": 0},         
+            "args": {"uri": 0},
             "predicates": [(codep, ["code"])]}
 
         super(JSONRequester, self).__init__(predicates,
