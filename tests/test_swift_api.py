@@ -1,17 +1,14 @@
 from utils import SERVICES
 import tests
-import os
 from resttest.jsontools import nested_search
+import StringIO
 
-NORMAL_OBJ = "include/swift_objects/normal_object"
-MULTIPART_OBJ_1 = "include/swift_objects/1"
-MULTIPART_OBJ_2 = "include/swift_objects/2"
-MULTIPART_OBJ_3 = "include/swift_objects/3"
-
-
+NORMAL_OBJ = "blahblahblah"
+MULTIPART_OBJ_1 = "aaaa"
+MULTIPART_OBJ_2 = "bbbb"
+MULTIPART_OBJ_3 = "cccc"
 CONTAINER = "kongtestcontainer"
 PREFIX = "myprefix"
-
 
 swift = SERVICES['object-store']
 
@@ -36,22 +33,26 @@ class TestSwiftAPI2(tests.FunctionalTest):
         swift.POST('/%s?format=json' % (CONTAINER), headers=headers, code=204)
 
 # create objects
+
     def test_005_create_normal_object(self):
-        headers = ({'Content-Length': '%d' % os.path.getsize(NORMAL_OBJ),
+        # open fake file object
+        obj = StringIO.StringIO()
+        # write some Content
+        obj.write(NORMAL_OBJ)
+        headers = ({'Content-Length': '%d' % obj.len,
                 'Content-Type': 'application/octet-stream'})
-        object = open(NORMAL_OBJ, "rb")
         swift.PUT_raw('/%s/%s' % (CONTAINER, NORMAL_OBJ),
-                headers=headers, body=object,  code=201)
+                headers=headers, body=obj.getvalue(),  code=201)
 
     def test_006_create_manifest_object(self):
-        # upload the 3 parts
-        for m in [MULTIPART_OBJ_1, MULTIPART_OBJ_2, MULTIPART_OBJ_3]:
-            headers = ({'Content-Length': '%d' % (os.path.getsize(m)),
-                    'Content-Type': 'application/octet-stream'})
-            object = open(m, "rb")
-            swift.PUT_raw('/%s/%s/%s' % (CONTAINER, PREFIX,
-                    os.path.basename(m)), headers=headers,
-                    body=object, code=201)
+        # create 3 objects
+        for obj in [MULTIPART_OBJ_1, MULTIPART_OBJ_2, MULTIPART_OBJ_3]:
+            p = StringIO.StringIO()
+            p.write(obj)
+            headers = ({'Content-Length': '%d' % p.len,
+                'Content-Type': 'application/octet-stream'})
+            swift.PUT_raw('/%s/%s/%s' % (CONTAINER, PREFIX, obj),
+                headers=headers, body=p.getvalue(),  code=201)
 
         # create the manifest file
         headers = ({'X-Object-Manifest': '%s/%s' % (CONTAINER, PREFIX),
@@ -60,22 +61,23 @@ class TestSwiftAPI2(tests.FunctionalTest):
                 headers=headers, code=201)
 
 # update object Meta
-#    @tests.skip_test("Currently not working")
     def test_008_create_custom_object_meta(self):
         headers = ({'X-Object-Meta-blah': 'blahblah'})
         swift.POST('/%s/%s?format=json' % (CONTAINER, NORMAL_OBJ),
                 headers=headers, code=202)
 
 # get objects
-#    @tests.skip_test("Currently not working")
     def test_009_get_normal_object(self):
-        swift.GET_raw('/%s/%s?format=json'
+        response, body = swift.GET_raw('/%s/%s?format=json'
                 % (CONTAINER, NORMAL_OBJ), code=200)
+        if body != NORMAL_OBJ:
+            raise AssertionError('file does not contain expected contents')
 
     def test_010_get_manifest_object(self):
         response, body = swift.GET_raw('/%s/%s'
                 % (CONTAINER, PREFIX), code=200)
-        if body != 'abc':
+        if body != "".join([MULTIPART_OBJ_1, MULTIPART_OBJ_2,
+            MULTIPART_OBJ_3]):
             raise AssertionError('file does not contain expected contents')
 
     def test_012_delete_normal_object(self):
@@ -89,7 +91,7 @@ class TestSwiftAPI2(tests.FunctionalTest):
         # delete all parts individually
         for m in [MULTIPART_OBJ_1, MULTIPART_OBJ_2, MULTIPART_OBJ_3]:
             swift.DELETE('/%s/%s/%s' % (CONTAINER, PREFIX,
-                    os.path.basename(m)), code=204)
+                    m), code=204)
 
     def test_100_delete_container(self):
         # need to get a list of objects in the container and delete them
