@@ -6,6 +6,14 @@ import os
 nova = SERVICES['nova']
 glance = SERVICES['glance']
 
+def md5sum_file(path):
+    from hashlib import md5
+    md5sum = md5()
+    with open(path, 'rb') as file:
+        for chunk in iter(lambda: file.read(8192), ''):
+            md5sum.update(chunk)
+    return md5sum.hexdigest()
+
 
 def glance_headers(name, file, format, kernel=None, ramdisk=None):
     h = {'x-image-meta-is-public': 'true',
@@ -73,7 +81,7 @@ class TestNovaAPI(tests.FunctionalTest):
     def test_001_upload_kernel_to_glance(self):
         kernel = self.config['environment']['kernel']
         headers = glance_headers("test-kernel", kernel, "aki")
-        md5 = self._md5sum_file(kernel)
+        md5 = md5sum_file(kernel)
         with open(kernel, "rb") as image_file:
             r, d = glance.POST_raw_with_keys_eq(
                 "/images",
@@ -86,7 +94,7 @@ class TestNovaAPI(tests.FunctionalTest):
     def test_002_upload_initrd_to_glance(self):
         initrd = self.config['environment']['initrd']
         headers = glance_headers("test-ramdisk", initrd, "ari")
-        md5 = self._md5sum_file(initrd)
+        md5 = md5sum_file(initrd)
         with open(initrd, "rb") as image_file:
             r, data = glance.POST_raw_with_keys_eq(
                 "/images",
@@ -102,7 +110,7 @@ class TestNovaAPI(tests.FunctionalTest):
         initrd = glance.GET("/images?name=test-ramdisk")[1]['images'][0]['id']
         image = self.config['environment']['image']
         headers = glance_headers("test-image", image, "ami", kernel, initrd)
-        md5 = self._md5sum_file(image)
+        md5 = md5sum_file(image)
         with open(image, "rb") as image_file:
             r, d = glance.POST_raw_with_keys_eq(
                 "/images",
