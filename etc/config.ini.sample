@@ -12,23 +12,8 @@ account = system
 username = root
 password = password
 
-[rabbitmq]
-host = 10.0.0.100
-user = guest
-password = 
-
 [nova]
 network_label = <PINGABLE NETWORK>
-
-[keystone]
-host = 10.0.0.100
-port = 5000
-admin_port = 5001
-apiver = v2.0
-user = admin
-password = password
-tenantid = tenant
-region = RegionOne
 
 [KongRequester]
 auth_url = http://keystone.somedomain.com:keystone_port

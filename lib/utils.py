@@ -8,7 +8,7 @@ r = JSONRequester(request_transformers=[print_it],
                  response_transformers=[print_it])
 SERVICES = {}
 for service in (("image", "glance"), ("compute", "nova"),
-          ("object-storage", "swift"), ("identity", "keystone")):
+          ("object-store", "swift"), ("identity", "keystone")):
     try:
         s, aliases = service[0], service[1:]
         SERVICES[s] = KongRequester(s)
@@ -29,3 +29,13 @@ try:
 except (ValueError, socket.error):
     SERVICES['identity-admin'] = None
     SERVICES['keystone-admin'] = None
+
+def read_in_chunks(infile, chunk_size=1024 * 64):
+    file_data = open(infile, "rb")
+    while True:
+        chunk = file_data.read(chunk_size)
+        if chunk:
+            yield chunk
+        else:
+            return
+    file_data.close()

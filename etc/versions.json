@@ -29,7 +29,7 @@
     "test_keystone_v2_no_key_essex": {
         "min": "essex"
     },
-    "test_007_get_tenant_list": {
+    "test_keystone_v2_03_get_tenant_list": {
         "max": "diablo-final"
     },
     "test_keystone_v2_get_tenant_list_essex": {
@@ -68,12 +68,6 @@
     "test_001_connect_to_glance_api": {
         "max": "diablo-final"
     },
-    "test_210_list_addresses": {
-        "max": "diablo-final"
-    },
-    "test_210_list_addresses_essex": {
-        "min": "essex"
-    },
     "test_901_delete_security_group_rule": {
         "min": "essex"
     },
@@ -85,5 +79,12 @@
     },
     "test_902_delete_security_group_diablo_final": {
         "max": "diablo-final"
+    },
+    "test_keystone_v2_validate_token": {
+        "min": "diablo-final"
+    },
+    "test_keystone_v2_validate_token_d5": {
+        "max": "diablo-d5"
     }
+
 }
