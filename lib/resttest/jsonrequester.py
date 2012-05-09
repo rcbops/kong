@@ -14,8 +14,7 @@ class JSONRequester(Requester):
             "response_transformers": [
                 (safe_json_response, [])],
             "request_transformers": [
-                (json_request, ["uri", "headers", "body",
-                                "response_transformers"])]}
+                (json_request, [])]}
         self._http_raw_with_keys_eq = {
             "args": {"d": 1},
             "predicates": [(codep, ["code"]),

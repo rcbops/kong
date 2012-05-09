@@ -25,6 +25,7 @@ import tests
 
 
 class TestGlanceAPI(tests.FunctionalTest):
+    @tests.skip_test("Replaced with kong requester test")
     def test_001_connect_to_glance_api(self):
         """
         Verifies ability to connect to glance api,
