@@ -36,7 +36,8 @@ r = SERVICES['keystone']
 admin = SERVICES['keystone-admin']
 
 
-class TestKeystoneAPI2(tests.FunctionalTest):
+class TestKeystoneAPI(tests.FunctionalTest):
+
     tags = ['nova', 'nova-api', 'keystone']
 
     def test_keystone_d5_failed_auth(self):
@@ -115,8 +116,8 @@ class TestKeystoneAPI2(tests.FunctionalTest):
 
     def test_keystone_v2_03_get_tenant_list_essex(self):
         response, d = admin.GET("/tenants", code=200)
-        self.assertEqual(len(nested_search("/tenants/*/name=kongtenant", d)),
-                         1)
+        if len(nested_search("/tenants/*/name=kongtenant", d)) != 1:
+            raise AssertionError("kongtenant not found")
         
     def test_keystone_v2_get_extension_list(self):
         response, d = admin.GET("/extensions", code=200)

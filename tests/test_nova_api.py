@@ -21,7 +21,7 @@ def glance_headers(name, file, format, kernel=None, ramdisk=None):
     return h
 
 
-class TestNovaAPI2(tests.FunctionalTest):
+class TestNovaAPI(tests.FunctionalTest):
 
     tags = ['nova', 'nova-api']
 
@@ -190,10 +190,12 @@ class TestNovaAPI2(tests.FunctionalTest):
 
     def test_210_list_addresses(self):
         label = self.config['nova']['network_label']
-        addrs = nova.GET('/servers/%s/ips' % (self.nova['single_server_id']),
+        r,d = nova.GET("/servers")
+        sid = nested_search("/servers/*/name=testing server creation/id", d)[0]
+        addrs = nova.GET('/servers/%s/ips' % (sid),
                          code=200)[1]
-        self.assertEqual(len(nested_search('/addresses/%s/*/addr=%s' % (
-            label, self.nova['address']), addrs)) > 0, True)
+        if not len(nested_search('/addresses/%s' % (label), addrs)[0]) > 0:
+            raise AssertionError("No addresses found for network %s" % (label))
 
     def test_900_delete_server(self):
         r, d = nova.GET("/servers/detail")
