@@ -15,10 +15,10 @@ class KongRequester(JSONRequester):
         self.target = target
         self.endpoint, self.token, self.services, self.data = \
             self._init_keystone(service, target)
-        self.request_transformers = [print_it] + self.request_transformers
         self.request_transformers += [base_url(self.endpoint)]
         self.request_transformers += [wrap_headers(
             {"X-Auth-Token": self.token})]
+        self.request_transformers += [print_curl_request]
         self.response_transformers = self.response_transformers + [print_it]
 
     def get_config(self):
@@ -70,6 +70,20 @@ class base_url(object):
         return type(self) == type(o) and self.uri == o.uri
 
 
+def print_curl_request(uri, method, headers, body,
+                       redirections, connection_type):
+    def posix_escape(s):
+        s.replace("'", "'\"'\"'")
+        return "'%s'" % (s)
+    
+    command = ["curl"]
+    command += ["-H " + posix_escape("%s: %s") % (k, v) for k,v in headers.items()]
+    if body:
+        command += ["-d %s" % posix_escape(str(body))]
+    command += ["-X %s" % (posix_escape(method)), posix_escape(uri) ]
+    print " ".join(command)
+    return uri, method, headers, body, redirections, connection_type
+    
 def print_it(*args):
     from pprint import pprint
     for a in args:
