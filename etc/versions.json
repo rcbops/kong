@@ -97,5 +97,11 @@
     },
     "test_keystone_v2_02_create_tenant_user": {
         "min": "essex"
+    },
+    "test_keystone_v2_04_delete_tenant_diablo": {
+        "max": "diablo-final"
+    },
+    "test_keystone_v2_04_delete_tenant": {
+        "min": "essex"
     }
 }

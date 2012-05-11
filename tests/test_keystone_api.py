@@ -35,7 +35,6 @@ from resttest.jsontools import nested_search
 r = SERVICES['keystone']
 admin = SERVICES['keystone-admin']
 
-
 class TestKeystoneAPI(tests.FunctionalTest):
 
     tags = ['nova', 'nova-api', 'keystone']
@@ -117,7 +116,7 @@ class TestKeystoneAPI(tests.FunctionalTest):
                              "password": "kongsecrete",
                              "tenantid": kong_tenant,
                              "email": ""}}
-        admin.POST("/users", body=user, code=200)
+        admin.POST("/users", body=user, code=201)
     def test_keystone_v2_02_create_tenant_user(self):
         response, data = admin.GET("/tenants")
         kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]
@@ -141,6 +140,12 @@ class TestKeystoneAPI(tests.FunctionalTest):
     def test_keystone_v2_04_delete_tenant(self):
         response, data = admin.GET("/tenants")
         kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]
+        admin.DELETE("/tenants/%s" % kong_tenant, code=204)
+
+    def test_keystone_v2_04_delete_tenant_diablo(self):
+        response, data = admin.GET("/tenants")
+        kong_tenant = nested_search("/tenants/values/*/name=kongtenant/id",
+                                    data)[0]
         admin.DELETE("/tenants/%s" % kong_tenant, code=204)
 
     def test_keystone_v2_05_delete_user(self):
