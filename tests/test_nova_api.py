@@ -21,12 +21,12 @@ def glance_headers(name, file, format, kernel=None, ramdisk=None):
             'x-image-meta-name': name,
             'x-image-meta-disk-format': format,
             'x-image-meta-container-format': format,
-            'Content-Length': '%d' % os.path.getsize(file),
+            'Content-Length': '%s' % os.path.getsize(file),
             'Content-Type': 'application/octet-stream'}
     if kernel:
-        h['x-image-meta-property-Kernel_id'] = kernel
+        h['x-image-meta-property-Kernel_id'] = str(kernel)
     if ramdisk:
-        h['x-image-meta-property-Ramdisk_id'] = ramdisk
+        h['x-image-meta-property-Ramdisk_id'] = str(ramdisk)
     return h
 
 
@@ -116,7 +116,7 @@ class TestNovaAPI(tests.FunctionalTest):
             r, d = glance.POST_raw_with_keys_eq(
                 "/images",
                 {"/image/name": "test-image",
-                 "/image/checksum": md5},
+                 "/image/checksum": str(md5)},
                  headers=headers,
                  body=image_file,
                  code=201)

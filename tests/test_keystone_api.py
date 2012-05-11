@@ -152,3 +152,8 @@ class TestKeystoneAPI(tests.FunctionalTest):
         response, data = admin.GET("/users")
         kong_user = nested_search("/users/*/name=kongadmin/id", data)[0]
         admin.DELETE("/users/%s" % kong_user, code=204)
+
+    def test_keystone_v2_05_delete_user_diablo(self):
+        response, data = admin.GET("/users")
+        kong_user = nested_search("/users/values/*/name=kongadmin/id", data)[0]
+        admin.DELETE("/users/%s" % kong_user, code=204)
