@@ -88,5 +88,8 @@
     },
     "test_keystone_v2_01_create_tenant_dfinal": {
         "max": "diablo-final"
+    },
+    "test_keystone_v2_01_create_tenant": {
+        "min": "essex"
     }
 }
