@@ -104,6 +104,11 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                 "name": "kongtenant",
                                 "description": "description"}}, code=200)
 
+    def test_keystone_v2_01_create_tenant_dfinal(self):
+        admin.POST('/tenants', body={"tenant": {
+                                "name": "kongtenant",
+                                "description": "description"}}, code=201)
+
     def test_keystone_v2_02_create_tenant_user(self):
         response, data = admin.GET("/tenants")
         kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]

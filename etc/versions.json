@@ -85,6 +85,8 @@
     },
     "test_keystone_v2_validate_token_d5": {
         "max": "diablo-d5"
+    },
+    "test_keystone_v2_01_create_tenant_dfinal": {
+        "max": "diablo-final"
     }
-
 }
