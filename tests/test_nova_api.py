@@ -67,13 +67,13 @@ class TestNovaAPI(tests.FunctionalTest):
 
     def test_verify_extensions(self):
         request, content = nova.GET("/extensions", code=200)
-        required_extensions = {'os-simple-tenant-usage',
-                               'os-hosts',
-                               'os-quota-sets',
-                               'os-flavor-extra-specs',
-                               'os-create-server-ext',
-                               'os-keypairs',
-                               'os-floating-ips'}
+        required_extensions = set(['os-simple-tenant-usage',
+                                   'os-hosts',
+                                   'os-quota-sets',
+                                   'os-flavor-extra-specs',
+                                   'os-create-server-ext',
+                                   'os-keypairs',
+                                   'os-floating-ips'])
         aliases = [e['alias'] for e in content['extensions']]
         for i in required_extensions:
             if not i in aliases:
