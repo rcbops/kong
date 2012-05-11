@@ -39,3 +39,12 @@ def read_in_chunks(infile, chunk_size=1024 * 64):
         else:
             return
     file_data.close()
+
+#one off swauth
+if SERVICES['object-store'] == None:
+    from swauthrequester import SwauthRequester
+    try:
+        SERVICES['object-store'] = SwauthRequester()
+        SERVICES['swift'] = SERVICES['object-store']
+    except:
+        pass
