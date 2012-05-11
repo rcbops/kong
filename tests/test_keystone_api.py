@@ -132,6 +132,11 @@ class TestKeystoneAPI(tests.FunctionalTest):
         if len(nested_search("/tenants/*/name=kongtenant", d)) != 1:
             raise AssertionError("kongtenant not found")
 
+    def test_keystone_v2_03_get_tenant_list_diablo(self):
+        response, d = admin.GET("/tenants", code=200)
+        if len(nested_search("/tenants/values*/name=kongtenant", d)) != 1:
+            raise AssertionError("kongtenant not found")
+
     def test_keystone_v2_get_extension_list(self):
         response, d = admin.GET("/extensions", code=200)
         if not (type(d['extensions']['values']) == type([])):

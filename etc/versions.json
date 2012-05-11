@@ -109,5 +109,11 @@
     },
     "test_keystone_v2_05_delete_user": {
         "min": "essex"
+    },
+    "test_keystone_v2_03_get_tenant_list_essex": {
+        "min": "essex"
+    },
+    "test_keystone_v2_03_get_tenant_list_diablo": {
+        "max": "diablo-final"
     }
 }
