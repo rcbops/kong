@@ -109,6 +109,15 @@ class TestKeystoneAPI(tests.FunctionalTest):
                                 "name": "kongtenant",
                                 "description": "description"}}, code=201)
 
+    def test_keystone_v2_02_create_tenant_user_diablo(self):
+        response, data = admin.GET("/tenants")
+        kong_tenant = nested_search("/tenants/values/*/name=kongtenant/id", data)[0]
+        user = {"user": {
+                             "name": "kongadmin",
+                             "password": "kongsecrete",
+                             "tenantid": kong_tenant,
+                             "email": ""}}
+        admin.POST("/users", body=user, code=200)
     def test_keystone_v2_02_create_tenant_user(self):
         response, data = admin.GET("/tenants")
         kong_tenant = nested_search("/tenants/*/name=kongtenant/id", data)[0]
