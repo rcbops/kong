@@ -92,11 +92,11 @@ class Requester(object):
                 request_transformers=[], response_transformers=[],
                 predicates=[], error="test failed"):
         return request(uri, method, headers, body, redirections,
-                       request_transformers=self.request_transformers \
-                           + request_transformers,
-                       response_transformers=self.response_transformers \
-                                              + response_transformers,
-                       predicates=self.predicates + predicates,
+                       request_transformers=request_transformers + \
+                       self.request_transformers,
+                       response_transformers=response_transformers \
+                                              + self.response_transformers,
+                       predicates=predicates + self.predicates,
                        error=error)
 
     @Retryable
