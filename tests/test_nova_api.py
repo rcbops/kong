@@ -167,7 +167,7 @@ class TestNovaAPI(tests.FunctionalTest):
         net = d['server']['addresses'][self.config['nova']['network_label']]
         good = False
         for i in net:
-            if self.ping_host(i['addr'], 5, 60):
+            if self.ping_host(i['addr'], 5, 200):
                 good = True
         if not good:
             raise AssertionError("Server is active but does not ping")
