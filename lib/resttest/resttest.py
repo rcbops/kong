@@ -8,20 +8,24 @@ from copy import copy
 def Retryable(f):
     def wrapped(*args, **kwargs):
         from time import sleep
-        timeout = kwargs.get("timeout", None)
-        delay = kwargs.get("delay", None)
-        if timeout and delay and delay > 0 and timeout > 0:
+        timeout = kwargs.get("timeout", 0)
+        delay = kwargs.get("delay", 5)
+        if kwargs.has_key("timeout") and kwargs.has_key("delay"):
             del kwargs["timeout"]
             del kwargs["delay"]
-            t = 0
-            while(t < timeout - delay):
-                try:
-                    return f(*args, **kwargs)
-                except:
-                    sleep(delay)
-                    t += delay
-        raise AssertionError("Function timed out before "
-                             "returning an appropriate result")
+        t = 0
+        while(t < timeout - delay):
+            try:
+                return f(*args, **kwargs)
+            except:
+                sleep(delay)
+                t += delay
+        else:
+            try:
+                return f(*args, **kwargs)
+            except:
+                raise AssertionError("Function timed out before "
+                                     "returning an appropriate result")
     return wrapped
 
 
