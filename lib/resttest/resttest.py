@@ -20,7 +20,7 @@ def Retryable(f):
                 except:
                     sleep(delay)
                     t += delay
-        return f(*args, **kwargs)
+        raise AssertionError("Function timed out before returning an appropriate result"
     return wrapped
 
 
