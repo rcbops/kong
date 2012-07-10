@@ -1,4 +1,5 @@
 from resttest.jsontools import nested_search
+from resttest.resttest import Retryable
 from utils import SERVICES
 import tests
 import os
@@ -34,28 +35,26 @@ class TestNovaAPI(tests.FunctionalTest):
 
     tags = ['nova', 'nova-api']
 
-    def ping_host(self, address, interval, max_wait):
+    @Retryable
+    def ping_host(self, address):
         """
         Ping a host ever <interval> seconds, up to a maximum of <max_wait>
         seconds for until the address is succesfully pingable, or the
         maximum wait interval has expired
         """
-        import time
         import subprocess
-        start = time.time()
-        while(time.time() - start < max_wait):
-            try:
-                retcode = subprocess.call(
-                    'ping -c1 -q %s > /dev/null 2>&1' % (address),
-                    shell=True)
-                if retcode == 0:
-                    return True
-            except OSError, e:
-                print "Error running external ping command: ", e
-                print retcode
-                return False
-            time.sleep(2)
-        return False
+        try:
+            retcode = subprocess.call(
+                'ping -c1 -q %s > /dev/null 2>&1' % (address),
+                shell=True)
+            if retcode == 0:
+                return True
+        except OSError, e:
+            print "Error running external ping command: ", e
+            print retcode
+            return False
+        raise AssertionError("Could not ping host %s" % address)
+
 
     def test_nova_list_flavors(self):
         r, d = nova.GET("/flavors", code=200)
@@ -167,7 +166,7 @@ class TestNovaAPI(tests.FunctionalTest):
         net = d['server']['addresses'][self.config['nova']['network_label']]
         good = False
         for i in net:
-            if self.ping_host(i['addr'], 5, 200):
+            if self.ping_host(i['addr'], delay=5, timeout=200):
                 good = True
         if not good:
             raise AssertionError("Server is active but does not ping")
@@ -182,7 +181,7 @@ class TestNovaAPI(tests.FunctionalTest):
     def test_202_get_server_details(self):
         r, d = nova.GET("/servers/detail")
         sid = nested_search("/servers/*/name=testing server creation/id", d)[0]
-        r, sssssssssssd = nova.GET("/servers/%s" % sid, code=200)
+        r, d = nova.GET("/servers/%s" % sid, code=200)
 
     def test_203_update_server(self):
         r, d = nova.GET("/servers/detail")
