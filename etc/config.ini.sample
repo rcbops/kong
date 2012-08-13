@@ -19,5 +19,15 @@ network_label = <PINGABLE NETWORK>
 auth_url = http://keystone.somedomain.com:keystone_port
 user = keystone_user
 password = password
-tenantid = tenantid
+tenantname = tenantid
 region = RegionOne
+
+# This section is to make a glance/swift requester
+# with different credentials than the admin swift requester
+[glance-swift]
+auth_url = http://keystone.somedomain.com:keystone_port
+user = glance_user
+password = password
+tenantname = service
+region = RegionOne
+container = glance

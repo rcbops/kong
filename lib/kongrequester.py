@@ -6,13 +6,15 @@ from resttest.httptools import wrap_headers
 class KongRequester(JSONRequester):
     def __init__(self, service, target="publicURL", predicates=[],
                  response_transformers=[], request_transformers=[],
-                 config_file="etc/config.ini"):
+                 config_file="etc/config.ini",
+                 section="KongRequester"):
         super(KongRequester, self).__init__(predicates,
                                             response_transformers,
                                             request_transformers)
         self.config_file = config_file
         self.service = service
         self.target = target
+        self.section = section
         self.endpoint, self.token, self.services, self.data = \
             self._init_keystone(service, target)
         self.request_transformers += [base_url(self.endpoint)]
@@ -25,7 +27,7 @@ class KongRequester(JSONRequester):
         #url, user, password, tenant
         from ConfigParser import ConfigParser
         p = ConfigParser()
-        s = "KongRequester"
+        s = self.section
         p.read(self.config_file)
         url = p.get(s, "auth_url").rstrip("/") + "/v2.0/tokens"
         return url, p.get(s, "user"), p.get(s, "password"), \
@@ -75,7 +77,7 @@ def print_curl_request(uri, method, headers, body,
     def posix_escape(s):
         s.replace("'", "'\"'\"'")
         return "'%s'" % (s)
-    
+
     command = ["curl"]
     command += ["-H " + posix_escape("%s: %s") % (k, v) for k,v in headers.items()]
     if body:
@@ -83,7 +85,7 @@ def print_curl_request(uri, method, headers, body,
     command += ["-X %s" % (posix_escape(method)), posix_escape(uri) ]
     print " ".join(command)
     return uri, method, headers, body, redirections, connection_type
-    
+
 def print_it(*args):
     from pprint import pprint
     for a in args:

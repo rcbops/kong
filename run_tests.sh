@@ -9,9 +9,9 @@ function usage {
   echo "  -f, --force              Force a clean re-build of the virtual environment. Useful when dependencies have been added."
   echo "  -p, --pep8               Just run pep8"
   echo "  --keystone               Run all tests tagged as \"keystone\"."
-  echo "  --nova		   Run all tests tagged as \"nova\"."
-  echo "  --swift		   Run all tests tagged as \"swift\"."
-  echo "  --glance		   Run all tests tagged as \"glance\"."
+  echo "  --nova                   Run all tests tagged as \"nova\"."
+  echo "  --swift                  Run all tests tagged as \"swift\"."
+  echo "  --glance                 Run all tests tagged as \"glance\"."
   echo "  --version <version>      Run tests specific to packageset version <version> (diablo-d5, diablo-final, etc)"
   echo "  -h, --help               Print this usage message"
   echo ""
@@ -41,14 +41,15 @@ while [ ${#@} -gt 0 ]; do
     --nova) noseargs="$noseargs -a tags=nova";;
     --glance) noseargs="$noseargs -a tags=glance";;
     --swift) noseargs="$noseargs -a tags=swift";;
+    --glance-swift) noseargs="$noseargs -a tags=glance-swift";;
     -v|--version)
-	  if [ "$2" == "" ]; then
-	      echo "Must specify a package set (diablo-final, etc) with --version"
-	      exit 1
-	  fi
-	  noseargs="$noseargs --package-set=$2"
-	  shift
-	  ;;
+          if [ "$2" == "" ]; then
+              echo "Must specify a package set (diablo-final, etc) with --version"
+              exit 1
+          fi
+          noseargs="$noseargs --package-set=$2"
+          shift
+          ;;
     *) noseargs="$noseargs $1"
   esac
 
