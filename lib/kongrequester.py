@@ -44,15 +44,21 @@ class KongRequester(JSONRequester):
         (url, user, password, tenantname, region) = self.get_config()
         body = {"auth": {"passwordCredentials": {"username": user,
                 "password": password}, "tenantName": tenantname}}
+        request_t = []
+        response_t = []
         try:
-            response, data = self.POST(url, body=body, code=200, 
-                                       request_transformers=[print_it], 
-                                       response_transformers=[print_it])
+            response, data = self.POST(url, body=body, code=200)
         except AssertionError:
-            response, data = self.POST(url, body=body['auth'], code=200, 
-                                       request_transformers=[print_it],
-                                       response_transformers=[print_it])
-            data['access'] = data['auth']
+            try:
+                response, data = self.POST(url, body=body['auth'], code=200)
+                data['access'] = data['auth']
+            except:
+                request_t = [print_curl_request]
+                response_t = [print_it]
+                print "Failed to auth.  Trying once more with verbosity"
+                response, data = self.POST(url, body=body, code=200, 
+                                           request_transformers=request_t,
+                                           response_transformers=response_t)
         services = nested_get("/access/serviceCatalog", data)
         try:
             endpoint = nested_search(
