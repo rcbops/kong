@@ -32,7 +32,7 @@ class KongRequester(JSONRequester):
         url = p.get(s, "auth_url").rstrip("/") 
         if not url.find("/v2.0") >= 0: 
             url += "/v2.0/tokens"
-        elif not url.find("/tokens"):
+        elif not url.find("/tokens") >= 0:
             url += "/tokens"
         tenant = p.get(s, "tenantname")
         user = p.get(s, "user")
@@ -45,9 +45,13 @@ class KongRequester(JSONRequester):
         body = {"auth": {"passwordCredentials": {"username": user,
                 "password": password}, "tenantName": tenantname}}
         try:
-            response, data = self.POST(url, body=body, code=200, request_transformers=[print_it], response_transformers=[print_it])
+            response, data = self.POST(url, body=body, code=200, 
+                                       request_transformers=[print_it], 
+                                       response_transformers=[print_it])
         except AssertionError:
-            response, data = self.POST(url, body=body['auth'], code=200, request_transformers=[print_it],response_transformers=[print_it])
+            response, data = self.POST(url, body=body['auth'], code=200, 
+                                       request_transformers=[print_it],
+                                       response_transformers=[print_it])
             data['access'] = data['auth']
         services = nested_get("/access/serviceCatalog", data)
         try:
