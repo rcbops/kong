@@ -29,9 +29,16 @@ class KongRequester(JSONRequester):
         p = ConfigParser()
         s = self.section
         p.read(self.config_file)
-        url = p.get(s, "auth_url").rstrip("/") + "/v2.0/tokens"
-        return url, p.get(s, "user"), p.get(s, "password"), \
-            p.get(s, "tenantname"), p.get(s, "region")
+        url = p.get(s, "auth_url").rstrip("/") 
+        if not url.find("/v2.0") >= 0: 
+            url += "/v2.0/tokens"
+        elif not url.find("/tokens"):
+            url += "/tokens"
+        tenant = p.get(s, "tenantname")
+        user = p.get(s, "user")
+        if not tenant and user.find(":") >= 0:
+            tenant, user = user.split(":", 1)
+        return url, user, p.get(s, "password"), tenant, p.get(s, "region")
 
     def _init_keystone(self, service, target):
         (url, user, password, tenantname, region) = self.get_config()
