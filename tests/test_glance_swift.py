@@ -20,6 +20,7 @@ def glance_headers(name, file, format, kernel=None, ramdisk=None):
             'x-image-meta-name': name,
             'x-image-meta-disk-format': format,
             'x-image-meta-container-format': format,
+            'x-image-meta-size': '%s' % os.path.getsize(file),
             'Content-Length': '%s' % os.path.getsize(file),
             'Content-Type': 'application/octet-stream'}
     if kernel:
