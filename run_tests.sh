@@ -12,6 +12,8 @@ function usage {
   echo "  --nova                   Run all tests tagged as \"nova\"."
   echo "  --swift                  Run all tests tagged as \"swift\"."
   echo "  --glance                 Run all tests tagged as \"glance\"."
+  echo "  --glance-swift           Run all tests tagged as \"glance-swift\"."
+  echo "  --cinder                 Run all tests tagged as \"cinder\"."
   echo "  --version <version>      Run tests specific to packageset version <version> (diablo-d5, diablo-final, etc)"
   echo "  -h, --help               Print this usage message"
   echo ""
@@ -42,6 +44,7 @@ while [ ${#@} -gt 0 ]; do
     --glance) noseargs="$noseargs -a tags=glance";;
     --swift) noseargs="$noseargs -a tags=swift";;
     --glance-swift) noseargs="$noseargs -a tags=glance-swift";;
+    --cinder) noseargs="$noseargs -a tags=cinder";;
     -v|--version)
           if [ "$2" == "" ]; then
               echo "Must specify a package set (diablo-final, etc) with --version"
