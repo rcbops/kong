@@ -4,7 +4,8 @@ from resttest.jsontools import nested_search
 
 
 cinder = SERVICES['volume']
-
+k = SERVICES['keystone']
+user = k.get_config()[1]
 #    absolute-limits     Print a list of absolute limits for a user
 #    create              Add a new volume.
 #    credentials         Show user credentials returned from auth
@@ -36,6 +37,31 @@ class TestCinderAPI(tests.FunctionalTest):
 
     def test_002_list_volumes(self):
         cinder.GET('/volumes/detail', code=200)
+
+    def test_003_list_default_quotas(self):
+        cinder.GET('/os-quota-sets/%s/defaults' % user, code=200)
+
+    def test_004_list_current_quotas(self):
+        cinder.GET('/os-quota-sets/%s' % user, code=200)
+
+    def test_005_update_quotas(self):
+        resp, body = cinder.GET('/os-quota-sets/%s' % user, code=200)
+        current_volumes = body['quota_set']['volumes']
+        target_volumes = current_volumes +1
+
+        cinder.PUT("/os-quota-sets/%s" % user,
+                  body={"quota_set":
+                        {"tenant_id": "%s" % user,
+                         "volumes": "%s" % target_volumes}},
+                         code=200)
+
+        resp, body = cinder.GET('/os-quota-sets/%s' % user, code=200)
+        new_volumes = body['quota_set']['volumes']
+
+        if new_volumes != target_volumes:
+            raise AssertionError('no way buddy %s' % current_volumes)
+
+
 
 #    def test_003_list_containers(self):
 #        response, body = swift.GET('?format=json', code=200)
