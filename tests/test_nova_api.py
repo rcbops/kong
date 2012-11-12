@@ -209,11 +209,17 @@ class TestNovaAPI(tests.FunctionalTest):
         r, d = nova.GET("/servers/detail")
         sid = nested_search("/servers/*/name=testing server creation/id", d)[0]
         nova.DELETE("/servers/%s" % sid, code=204)
+        r, d = nova.GET("/servers/%s" % sid,
+            code=404, timeout=60, delay=5)
 
     def test_997_delete_test_images_from_glance(self):
         for name in ["test-kernel", "test-ramdisk", "test-image"]:
             i = glance.GET("/images?name=%s" % name)[1]['images'][0]['id']
             glance.DELETE("/images/%s" % i, code=200)
+            r, d = nova.GET_with_keys_eq(
+                "/images/%s" % i,
+                {"/image/status": "DELETED"},
+                code=200, timeout=60, delay=5)
     test_997_delete_test_images_from_glance.tags = ['glance', 'nova']
 
     def test_901_delete_security_group_rule(self):
