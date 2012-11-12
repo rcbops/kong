@@ -49,20 +49,21 @@ class TestCinderAPI(tests.FunctionalTest):
 
     def test_006_list_types(self):
         cinder.GET('/types', code=200)
-        
+
     def test_007_list_snapshots(self):
         cinder.GET('/snapshots/detail', code=200)
-    
+
     def test_008_update_quotas(self):
         resp, body = cinder.GET('/os-quota-sets/%s' % user, code=200)
         current_volumes = body['quota_set']['volumes']
-        target_volumes = current_volumes +1
+        target_volumes = current_volumes + 1
 
-        cinder.PUT("/os-quota-sets/%s" % user,
-                  body={"quota_set":
-                       {"tenant_id": "%s" % user,
-                        "volumes": "%s" % target_volumes}},
-                        code=200)
+        cinder.PUT(
+            '/os-quota-sets/%s' % user,
+            body={"quota_set":
+            {"tenant_id": "%s" % user,
+            "volumes": "%s" % target_volumes}},
+            code=200)
 
         resp, body = cinder.GET('/os-quota-sets/%s' % user, code=200)
         new_volumes = body['quota_set']['volumes']
@@ -71,57 +72,79 @@ class TestCinderAPI(tests.FunctionalTest):
             raise AssertionError('Could not update quotas')
 
     def test_009_create_volume_type(self):
-        cinder.POST('/types', body={"volume_type":
-                                   {"name": "test-type"}}, code=200)
+        cinder.POST(
+            '/types', body={"volume_type":
+            {"name": "test-type"}},
+            code=200)
 
     def test_010_create_volume(self):
-        resp, body = cinder.POST('/volumes', body={"volume":
-                                                  {"size": "1",
-                                                   "volume_type": "test-type",
-                                                   "display_name": "test-volume"}},
-                                                   code=200)
+        resp, body = cinder.POST(
+            '/volumes', body={"volume":
+            {"size": "1",
+            "volume_type": "test-type",
+            "display_name": "test-volume"}},
+            code=200)
+
         volume_id = body["volume"]["id"]
 
-        resp, body = cinder.GET_with_keys_eq('/volumes/%s' % volume_id,
-                                            {"/volume/status": "available"},
-                                            code=200, timeout=60, delay=5)
+        resp, body = cinder.GET_with_keys_eq(
+            '/volumes/%s' % volume_id,
+            {"/volume/status": "available"},
+            code=200, timeout=60, delay=5)
 
     def test_011_create_snapshot(self):
-        volume_id = nested_search('/volumes/*/display_name=test-volume/id',
-                        cinder.GET('/volumes/detail')[1])[0]
+        volume_id = nested_search(
+            '/volumes/*/display_name=test-volume/id',
+            cinder.GET('/volumes/detail')[1])[0]
 
-        resp, body = cinder.POST('/snapshots', body={"snapshot":
-                                                     {"display_name": "test-snapshot",
-                                                     "volume_id": volume_id}},
-                                                     code=200)
+        resp, body = cinder.POST(
+            '/snapshots',
+            body={"snapshot":
+            {"display_name": "test-snapshot",
+            "volume_id": volume_id}},
+            code=200)
 
         snapshot_id = body["snapshot"]["id"]
 
-        resp, body = cinder.GET_with_keys_eq('/snapshots/%s' % snapshot_id,
-                                            {"/snapshot/status": "available"},
-                                            code=200, timeout=60, delay=5)
-
+        resp, body = cinder.GET_with_keys_eq(
+            '/snapshots/%s' % snapshot_id,
+            {"/snapshot/status": "available"},
+            code=200, timeout=60, delay=5)
 
     def test_012_delete_snapshot(self):
-        snapshot_id = nested_search('/snapshots/*/display_name=test-snapshot/id',
-                        cinder.GET('/snapshots/detail')[1])[0]
+        snapshot_id = nested_search(
+            '/snapshots/*/display_name=test-snapshot/id',
+            cinder.GET('/snapshots/detail')[1])[0]
 
-        resp, body = cinder.DELETE('/snapshots/%s' % snapshot_id, code=202)
+        resp, body = cinder.DELETE(
+            '/snapshots/%s' % snapshot_id,
+            code=202)
 
-        resp, body = cinder.GET('/snapshots/%s' % snapshot_id, code=404, timeout=80, delay=5)
+        resp, body = cinder.GET(
+            '/snapshots/%s' % snapshot_id,
+            code=404, timeout=80, delay=5)
 
     def test_013_delete_volume(self):
-        volume_id = nested_search('/volumes/*/display_name=test-volume/id',
-                        cinder.GET('/volumes/detail')[1])[0]
+        volume_id = nested_search(
+            '/volumes/*/display_name=test-volume/id',
+            cinder.GET('/volumes/detail')[1])[0]
 
-        resp, body = cinder.DELETE('/volumes/%s' % volume_id, code=202)
+        resp, body = cinder.DELETE(
+            '/volumes/%s' % volume_id, code=202)
 
-        resp, body = cinder.GET('/volumes/%s' % volume_id, code=404, timeout=80, delay=5)
+        resp, body = cinder.GET(
+            '/volumes/%s' % volume_id,
+            code=404, timeout=80, delay=5)
 
     def test_014_delete_volume_type(self):
-        type_id = nested_search('/volume_types/*/name=test-type/id',
-                        cinder.GET('/types')[1])[0]
+        type_id = nested_search(
+            '/volume_types/*/name=test-type/id',
+            cinder.GET('/types')[1])[0]
 
-        resp, body = cinder.DELETE('/types/%s' % type_id, code=202)
+        resp, body = cinder.DELETE(
+            '/types/%s' % type_id,
+            code=202)
 
-        resp, body = cinder.GET('/types/%s' % type_id, code=404, timeout=10, delay=5)
+        resp, body = cinder.GET(
+            '/types/%s' % type_id,
+            code=404, timeout=10, delay=5)
