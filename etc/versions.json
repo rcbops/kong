@@ -27,7 +27,8 @@
         "max": "diablo-final"
     },
     "test_keystone_v2_no_key_essex": {
-        "min": "essex"
+        "min": "essex",
+        "max": "folsom"
     },
     "test_keystone_v2_03_get_tenant_list": {
         "max": "diablo-final"
