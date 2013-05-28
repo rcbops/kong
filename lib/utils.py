@@ -9,8 +9,9 @@ r = JSONRequester(request_transformers=[print_it],
 SERVICES = {}
 for service in (("image", "glance"),
                 ("compute", "nova"),
-                ("object-store", "swift"), 
+                ("object-store", "swift"),
                 ("identity", "keystone"),
+                ("metering", "ceilometer"),
                 ("volume", "cinder")):
     try:
         s, aliases = service[0], service[1:]

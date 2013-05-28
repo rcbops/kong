@@ -45,6 +45,7 @@ while [ ${#@} -gt 0 ]; do
     --swift) noseargs="$noseargs -a tags=swift";;
     --glance-swift) noseargs="$noseargs -a tags=glance-swift";;
     --cinder) noseargs="$noseargs -a tags=cinder";;
+    --ceilometer) noseargs="$noseargs -a tags=ceilometer";;
     -v|--version)
           if [ "$2" == "" ]; then
               echo "Must specify a package set (diablo-final, etc) with --version"
