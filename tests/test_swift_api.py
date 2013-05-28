@@ -104,3 +104,4 @@ class TestSwiftAPI2(tests.FunctionalTest):
 
         # now we can delete the container
         swift.DELETE('/%s?format=json' % (CONTAINER), code=204)
+        swift.HEAD('/%s' % CONTAINER, code=404)
