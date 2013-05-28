@@ -81,17 +81,17 @@ class TestSwiftAPI2(tests.FunctionalTest):
             raise AssertionError('file does not contain expected contents')
 
     def test_012_delete_normal_object(self):
-        swift.DELETE('/%s/%s?format=json' % (CONTAINER, NORMAL_OBJ),
-                     code=204)
+        swift.DELETE('/%s/%s?format=json' % (CONTAINER, NORMAL_OBJ), code=204)
+        swift.HEAD('/%s/%s' % (CONTAINER, NORMAL_OBJ), code=404)
 
     def test_013_delete_manifest_object(self):
         # delete manifest file first
-        swift.DELETE('/%s/%s?format=json' % (CONTAINER, PREFIX),
-                     code=204)
+        swift.DELETE('/%s/%s?format=json' % (CONTAINER, PREFIX), code=204)
+        swift.HEAD('/%s/%s' % (CONTAINER, PREFIX), code=404)
         # delete all parts individually
         for m in [MULTIPART_OBJ_1, MULTIPART_OBJ_2, MULTIPART_OBJ_3]:
-            swift.DELETE('/%s/%s/%s' % (CONTAINER, PREFIX,
-                    m), code=204)
+            swift.DELETE('/%s/%s/%s' % (CONTAINER, PREFIX, m), code=204)
+            swift.HEAD('/%s/%s/%s' % (CONTAINER, PREFIX, m), code=404)
 
     def test_100_delete_container(self):
         # need to get a list of objects in the container and delete them
@@ -100,7 +100,7 @@ class TestSwiftAPI2(tests.FunctionalTest):
         objects = nested_search('*/name', body)
         # delete the objects one by one
         for obj in objects:
-            swift.DELETE('%s/%s' % (CONTAINER, obj), code=204)
+            swift.DELETE('/%s/%s' % (CONTAINER, obj), code=204)
 
         # now we can delete the container
         swift.DELETE('/%s?format=json' % (CONTAINER), code=204)
