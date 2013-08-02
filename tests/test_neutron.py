@@ -9,6 +9,7 @@ admin = SERVICES['keystone-admin']
 user = k.get_config()[1]
 project = k.get_config()[3]
 api_ver = 'v2.0'
+tenant_id = neutron.GET('/%s/quotas/tenant.json' % api_ver)[1]['tenant']['tenant_id']
 
 
 class TestNeutronAPI(tests.FunctionalTest):
@@ -90,9 +91,43 @@ class TestNeutronAPI(tests.FunctionalTest):
 #        resp, body = neutron.GET('/%s/networks/%s/dhcp-agents.json?id=%s'
 #            % (api_ver, network_id, dhcp_agent_id))
 #
+    def test_011_subnet_create(self):
+        network_id = nested_search('networks/*/name=test-network/id', neutron.GET('/%s/networks' % api_ver, code=200)[1])[0]
 
+        resp, body = neutron.POST(
+            '/%s/subnets.json' % api_ver,
+            body={'subnet':
+            {'network_id': '%s' % network_id,
+            'ip_version': 4,
+            'cidr': '192.168.78.0/29',
+            'name': 'test-subnet'}},
+            code=201)
 
-    def test_011_port_create(self):
+    def test_012_subnet_list(self):
+        neutron.GET('/%s/subnets.json' % api_ver, code=200)
+
+    def test_013_subnet_show(self):
+        subnet_id = nested_search('subnets/*/name=test-subnet/id', neutron.GET('/%s/subnets' % api_ver, code=200)[1])[0]
+        neutron.GET('/%s/subnets/%s' % (api_ver, subnet_id), code=200)
+
+    def test_014_subnet_update(self):
+        subnet_id = nested_search('subnets/*/name=test-subnet/id', neutron.GET('/%s/subnets' % api_ver, code=200)[1])[0]
+
+        resp, body = neutron.PUT(
+            '/%s/subnets/%s.json' % (api_ver, subnet_id),
+            body={'subnet':
+            {'name': 'a-new-test-subnet'}},
+            code=200)
+
+        resp, body = neutron.GET_with_keys_eq(
+            '/%s/subnets/%s' % (api_ver, subnet_id),
+            {'/subnet/name': 'a-new-test-subnet'},
+            code=200)
+
+        neutron.PUT('/%s/subnets/%s.json' % (api_ver, subnet_id),
+                body={'subnet': {'name': 'test-subnet'}}, code=200)
+
+    def test_015_port_create(self):
         network_id = nested_search('networks/*/name=test-network/id', neutron.GET('/%s/networks' % api_ver, code=200)[1])[0]
 
         resp, body = neutron.POST(
@@ -110,36 +145,81 @@ class TestNeutronAPI(tests.FunctionalTest):
             {'/port/admin_state_up': True},
             code=200, timeout=10, delay=2)
 
-#    def test_xxxx_port_list(self):
-#    def test_xxxx_port_show(self):
-#    def test_xxxx_port_update(self):
-#    def test_xxxx_quota_list(self):
-#    def test_xxxx_quota_show(self):
-#    def test_xxxx_quota_update(self):
+    def test_016_port_list(self):
+        neutron.GET('/%s/ports.json' % api_ver, code=200)
+
+    def test_017_port_show(self):
+        port_id = nested_search('ports/*/name=test-port/id', neutron.GET('/%s/ports' % api_ver, code=200)[1])[0]
+        neutron.GET('/%s/ports/%s' % (api_ver, port_id), code=200)
+
+    def test_018_port_update(self):
+        port_id = nested_search('ports/*/name=test-port/id', neutron.GET('/%s/ports' % api_ver, code=200)[1])[0]
+
+        resp, body = neutron.PUT(
+            '/%s/ports/%s.json' % (api_ver, port_id),
+            body={'port':
+            {'name': 'a-new-test-port'}},
+            code=200)
+
+        resp, body = neutron.GET_with_keys_eq(
+            '/%s/ports/%s' % (api_ver, port_id),
+            {'/port/name': 'a-new-test-port'},
+            code=200)
+
+        neutron.PUT('/%s/ports/%s.json' % (api_ver, port_id),
+                body={'port': {'name': 'test-port'}}, code=200)
+
+    def test_019_quota_update(self):
+        current_subnet_quota = nested_search('quota/subnet', neutron.GET('/%s/quotas/%s' % (api_ver, tenant_id), code=200)[1])[0]
+        target_subnet_quota = int(current_subnet_quota) + 1
+
+        resp, body = neutron.PUT('/%s/quotas/%s.json' % (api_ver, tenant_id),
+            body={'quota': {'subnet': '%d' % target_subnet_quota}},
+            code=200)
+
+        resp, body = neutron.GET_with_keys_eq(
+            '/%s/quotas/%s' % ( api_ver, tenant_id ),
+            {'/quota/subnet': target_subnet_quota},
+            code=200)
+
+    def test_020_quota_list(self):
+
+        resp, body = neutron.GET('/%s/quotas.json' % api_ver, code=200)
+
+        our_quota = nested_search('quotas/*/tenant_id=%s/tenant_id' % tenant_id, body)[0]
+        assert our_quota == tenant_id
+
+
+    def test_021_quota_show(self):
+
+        neutron.GET('/%s/quotas/%s.json' % (api_ver, tenant_id))
+
 #    def test_xxxx_security_group_create(self):
 #    def test_xxxx_security_group_list(self):
 #    def test_xxxx_security_group_rule_create(self):
 #    def test_xxxx_security_group_rule_list(self):
 #    def test_xxxx_security_group_rule_show(self):
 #    def test_xxxx_security_group_show(self):
-#    def test_xxxx_subnet_create(self):
-#    def test_xxxx_subnet_list(self):
-#    def test_xxxx_subnet_show(self):
-#    def test_xxxx_subnet_update(self):
 
 
 #    def test_xxxx_security_group_rule_delete(self):
 #    def test_xxxx_security_group_delete(self):
 #    def test_xxxx_quota_delete(self):
-    def test_068_port_delete(self):
+    def test_060_port_delete(self):
         resp, body = neutron.GET('/%s/ports.json?fields=id&name=test-port' % api_ver, code=200)
         port_ids = [p['id'] for p in body['ports']]
 
         for port in port_ids:
             neutron.DELETE('/%s/ports/%s.json' % (api_ver, port), code=204)
 
-#    def test_xxxx_subnet_delete(self):
-    def test_069_dhcp_agent_network_remove(self):
+    def test_065_subnet_delete(self):
+        resp, body = neutron.GET('/%s/subnets.json?fields=id&name=test-subnet' % api_ver, code=200)
+        subnet_ids = [p['id'] for p in body['subnets']]
+
+        for subnet in subnet_ids:
+            neutron.DELETE('/%s/subnets/%s.json' % (api_ver, subnet), code=204)
+
+    def test_070_dhcp_agent_network_remove(self):
         resp, body = neutron.GET('/%s/networks.json?fields=id&name=test-network' % api_ver, code=200)
         network_ids = [p['id'] for p in body['networks']]
         dhcp_agent_id = nested_search('agents/*/agent_type=DHCP agent/id', neutron.GET('/%s/agents' % api_ver, code=200)[1])[0]
@@ -147,7 +227,7 @@ class TestNeutronAPI(tests.FunctionalTest):
         for net in network_ids:
             resp, body = neutron.DELETE('/%s/agents/%s/dhcp-networks/%s' % (api_ver, dhcp_agent_id, net), code=204)
 
-    def test_070_net_delete(self):
+    def test_075_net_delete(self):
         resp, body = neutron.GET('/%s/networks.json?fields=id&name=test-network' % api_ver, code=200)
         network_ids = [p['id'] for p in body['networks']]
 
