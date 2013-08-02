@@ -194,17 +194,76 @@ class TestNeutronAPI(tests.FunctionalTest):
 
         neutron.GET('/%s/quotas/%s.json' % (api_ver, tenant_id))
 
-#    def test_xxxx_security_group_create(self):
-#    def test_xxxx_security_group_list(self):
-#    def test_xxxx_security_group_rule_create(self):
-#    def test_xxxx_security_group_rule_list(self):
-#    def test_xxxx_security_group_rule_show(self):
-#    def test_xxxx_security_group_show(self):
+    def test_022_security_group_create(self):
+        resp, body = neutron.POST(
+            '/%s/security-groups.json' % api_ver,
+            body={'security_group':
+            {'name': 'test-sec-group'}},
+            code=201)
+
+        secgroup_id = body['security_group']['id']
+
+        resp, body = neutron.GET_with_keys_eq(
+            '/%s/security-groups/%s.json' % (api_ver, secgroup_id),
+            {'/security_group/name': 'test-sec-group'},
+            code=200)
+
+    def test_023_security_group_list(self):
+        neutron.GET('/%s/security-groups.json' % api_ver, code=200)
+
+    def test_024_security_group_show(self):
+        secgroup_id = nested_search('security_groups/*/name=test-sec-group/id', neutron.GET('/%s/security-groups' % api_ver, code=200)[1])[0]
+
+        neutron.GET('/%s/security-groups/%s' % (api_ver, secgroup_id))
+
+    def test_025_security_group_rule_create(self):
+        secgroup_id = nested_search('security_groups/*/name=test-sec-group/id', neutron.GET('/%s/security-groups' % api_ver, code=200)[1])[0]
+
+        resp, body = neutron.POST('/%s/security-group-rules.json' % api_ver,
+            {"security_group_rule": {
+            "ethertype": "IPv4",
+            "direction": "ingress",
+            "protocol": "icmp",
+            "security_group_id": '%s' % secgroup_id}})
+
+        secgroup_rule_id = body['security_group_rule']['id']
+
+        resp, body = neutron.GET_with_keys_eq(
+            '/%s/security-groups/%s.json' % (api_ver, secgroup_rule_id),
+            {'/security_group_rule/protocol': 'icmp'},
+            code=200)
+
+#        neutron.DELETE('/%s/security-group-rules/%s.json' % secgroup_rule_id, code=204)
 
 
-#    def test_xxxx_security_group_rule_delete(self):
-#    def test_xxxx_security_group_delete(self):
-#    def test_xxxx_quota_delete(self):
+    def test_026_security_group_rule_show(self):
+        secgroup_id = nested_search('security_groups/*/name=test-sec-group/id', neutron.GET('/%s/security-groups' % api_ver, code=200)[1])[0]
+        resp, body = neutron.GET('/%s/security-groups/%s' % (api_ver, secgroup_id))
+
+        secgroup_rule_id = nested_search('security_group/security_group_rules/*/protocol=icmp/id', body)
+
+        neutron.GET('/%s/security-group-rules/%s.json' % (api_ver, secgroup_rule_id))
+
+    def test_045_security_group_rule_delete(self):
+        secgroup_id = nested_search('security_groups/*/name=test-sec-group/id', neutron.GET('/%s/security-groups' % api_ver, code=200)[1])[0]
+        resp, body = neutron.GET('/%s/security-groups/%s' % (api_ver, secgroup_id))
+
+        try:
+            secgroup_rule_id = nested_search('security_group/security_group_rules/*/protocol=icmp/id', body)[0]
+            neutron.DELETE('/%s/security-group-rules/%s.json' % (api_ver, secgroup_rule_id), code=204)
+        except IndexError:
+            pass
+
+    def test_050_security_group_delete(self):
+        resp, body = neutron.GET('/%s/security-groups.json?fields=id&name=test-sec-group' % api_ver, code=200)
+        security_group_ids = [p['id'] for p in body['security_groups']]
+
+        for net in security_group_ids:
+            neutron.DELETE('/%s/security-groups/%s.json' % (api_ver, net), code=204)
+
+    def test_055_quota_delete(self):
+        neutron.DELETE('/%s/quotas/%s.json' % ( api_ver, tenant_id))
+
     def test_060_port_delete(self):
         resp, body = neutron.GET('/%s/ports.json?fields=id&name=test-port' % api_ver, code=200)
         port_ids = [p['id'] for p in body['ports']]
@@ -233,37 +292,3 @@ class TestNeutronAPI(tests.FunctionalTest):
 
         for net in network_ids:
             neutron.DELETE('/%s/networks/%s.json' % (api_ver, net), code=204)
-
-#
-#    def test_002_list_resources(self):
-#        neutron.GET('/%s/resources' % api_ver, code=200)
-#
-#    def test_003_list_users(self):
-#        neutron.GET('/%s/users' % api_ver, code=200)
-#
-#    def test_004_list_projects(self):
-#        neutron.GET('/%s/projects' % api_ver, code=200)
-#
-#    def test_005_list_meters_for_user(self):
-#        response, data = admin.GET("/users")
-#        userid = nested_search("/users/*/name=%s/id" % user, data)[0]
-#        neutron.GET('/%s/users/%s/meters'
-#                       % (api_ver, userid), code=200)
-#
-#    def test_006_list_meters_for_project(self):
-#        response, data = admin.GET("/tenants")
-#        projectid = nested_search("/tenants/*/name=%s/id" % project, data)[0]
-#        neutron.GET('/%s/projects/%s/meters'
-#                       % (api_ver, projectid), code=200)
-#
-#    def test_007_list_resources_for_user(self):
-#        response, data = admin.GET("/users")
-#        userid = nested_search("/users/*/name=%s/id" % user, data)[0]
-#        neutron.GET('/%s/users/%s/resources'
-#                       % (api_ver, userid), code=200)
-#
-#    def test_008_list_resources_for_project(self):
-#        response, data = admin.GET("/tenants")
-#        projectid = nested_search("/tenants/*/name=%s/id" % project, data)[0]
-#        neutron.GET('/%s/projects/%s/resources'
-#                       % (api_ver, projectid), code=200)
