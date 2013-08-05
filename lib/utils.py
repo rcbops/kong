@@ -12,6 +12,7 @@ for service in (("image", "glance"),
                 ("object-store", "swift"),
                 ("identity", "keystone"),
                 ("metering", "ceilometer"),
+                ("network", "neutron"),
                 ("volume", "cinder")):
     try:
         s, aliases = service[0], service[1:]
