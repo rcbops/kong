@@ -2,6 +2,7 @@ from utils import SERVICES
 import tests
 from resttest.jsontools import nested_search
 import time
+import unittest
 
 neutron = SERVICES['network']
 k = SERVICES['keystone']
@@ -84,13 +85,12 @@ class TestNeutronAPI(tests.FunctionalTest):
             code=201)
 
 #        # check network is on the dhcp agent (net-list-on-dhcp-agent)
-#        resp, body = neutron.GET('/%s/agents/%s/dhcp-networks.json?id=%s'
-#            % (api_ver, dhcp_agent_id, network_id))
-#
+#        a = nested_search('networks/*/%s/id' % network_id, neutron.GET('/%s/agents/%s/dhcp-networks.json' % (api_ver, dhcp_agent_id))[1])[0]
+#        assert(a == network_id)
 #        # check dhcp agent is on the network detail (dhcp-agent-list-hosting-net)
-#        resp, body = neutron.GET('/%s/networks/%s/dhcp-agents.json?id=%s'
-#            % (api_ver, network_id, dhcp_agent_id))
-#
+#        a = nested_search('agents/*/%s/id' % dhcp_agent_id, neutron.GET('/%s/networks/%s/dhcp-agents.json' % (api_ver, network_id))[1])[0]
+#        assert(a == dhcp_agent_id)
+
     def test_011_subnet_create(self):
         network_id = nested_search('networks/*/name=test-network/id', neutron.GET('/%s/networks' % api_ver, code=200)[1])[0]
 
@@ -220,21 +220,18 @@ class TestNeutronAPI(tests.FunctionalTest):
         secgroup_id = nested_search('security_groups/*/name=test-sec-group/id', neutron.GET('/%s/security-groups' % api_ver, code=200)[1])[0]
 
         resp, body = neutron.POST('/%s/security-group-rules.json' % api_ver,
-            {"security_group_rule": {
-            "ethertype": "IPv4",
-            "direction": "ingress",
-            "protocol": "icmp",
-            "security_group_id": '%s' % secgroup_id}})
+            body={'security_group_rule': {
+            'ethertype': 'IPv4',
+            'direction': 'ingress',
+            'protocol': 'ICMP',
+            'security_group_id': '%s' % secgroup_id}})
 
         secgroup_rule_id = body['security_group_rule']['id']
 
         resp, body = neutron.GET_with_keys_eq(
-            '/%s/security-groups/%s.json' % (api_ver, secgroup_rule_id),
+            '/%s/security-group-rules/%s.json' % (api_ver, secgroup_rule_id),
             {'/security_group_rule/protocol': 'icmp'},
             code=200)
-
-#        neutron.DELETE('/%s/security-group-rules/%s.json' % secgroup_rule_id, code=204)
-
 
     def test_026_security_group_rule_show(self):
         secgroup_id = nested_search('security_groups/*/name=test-sec-group/id', neutron.GET('/%s/security-groups' % api_ver, code=200)[1])[0]
