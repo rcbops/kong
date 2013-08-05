@@ -1,8 +1,6 @@
 from utils import SERVICES
 import tests
 from resttest.jsontools import nested_search
-import time
-import unittest
 
 neutron = SERVICES['network']
 k = SERVICES['keystone']
