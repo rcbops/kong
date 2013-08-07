@@ -1,5 +1,6 @@
 from resttest.jsontools import nested_search
 from resttest.resttest import Retryable
+from time import sleep
 from utils import SERVICES
 import tests
 import os
@@ -149,7 +150,7 @@ class TestNovaAPI(tests.FunctionalTest):
         r, d = glance.GET("/images?name=test-ramdisk-glance-image-sync")
         i = d['images'][0]['id']
         # give some time to allow the sync to happen
-        time.sleep(10)
+        sleep(10)
         for api in api_nodes.split(','):
             glance.GET("/images/%s" % i, code=200)
     test_006_verify_glance_image_sync.tags = ['glance-image-sync']
@@ -160,7 +161,7 @@ class TestNovaAPI(tests.FunctionalTest):
         i = d['images'][0]['id']
         glance.DELETE("/images/%s" % i, code=200)
         # give some time to allow the sync to happen
-        time.sleep(10)
+        sleep(10)
         for api in api_nodes.split(','):
             glance.GET("/images/%s" % i, code=404)
     test_007_delete_glance_image_sync.tags = ['glance-image-sync']
