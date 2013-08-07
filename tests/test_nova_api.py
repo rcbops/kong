@@ -142,7 +142,7 @@ class TestNovaAPI(tests.FunctionalTest):
                 headers=headers,
                 body=image_file,
                 code=201)
-    test_002_upload_glance_image_sync.tags = ['glance']
+    test_005_upload_glance_image_sync.tags = ['glance-image-sync']
 
     def test_006_verify_glance_image_sync(self):
         api_nodes = self.config['glance-image-sync']['api_nodes']
@@ -152,7 +152,7 @@ class TestNovaAPI(tests.FunctionalTest):
         time.sleep(10)
         for api in api_nodes.split(','):
             glance.GET("/images/%s" % i, code=200)
-    test_006_verify_glance_image_sync.tags = ['glance']
+    test_006_verify_glance_image_sync.tags = ['glance-image-sync']
 
     def test_007_delete_glance_image_sync(self):
         api_nodes = self.config['glance-image-sync']['api_nodes']
@@ -163,7 +163,7 @@ class TestNovaAPI(tests.FunctionalTest):
         time.sleep(10)
         for api in api_nodes.split(','):
             glance.GET("/images/%s" % i, code=404)
-    test_007_delete_glance_image_sync.tags = ['glance']
+    test_007_delete_glance_image_sync.tags = ['glance-image-sync']
 
     def test_verify_not_blank_limits(self):
         r, d = nova.GET_with_keys_ne("/limits",
