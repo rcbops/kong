@@ -12,8 +12,11 @@ function usage {
   echo "  --nova                   Run all tests tagged as \"nova\"."
   echo "  --swift                  Run all tests tagged as \"swift\"."
   echo "  --glance                 Run all tests tagged as \"glance\"."
+  echo "  --glance-image-sync      Run all tests tagged as \"glance-image-sync\"."
   echo "  --glance-swift           Run all tests tagged as \"glance-swift\"."
   echo "  --cinder                 Run all tests tagged as \"cinder\"."
+  echo "  --ceilometer             Run all tests tagged as \"ceilometer\"."
+  echo "  --neutron                Run all tests tagged as \"neutron\"."
   echo "  --version <version>      Run tests specific to packageset version <version> (diablo-d5, diablo-final, etc)"
   echo "  -h, --help               Print this usage message"
   echo ""
@@ -41,8 +44,9 @@ while [ ${#@} -gt 0 ]; do
     -p|--pep8) let just_pep8=1;;
     --keystone) noseargs="$noseargs -a tags=keystone";;
     --nova) noseargs="$noseargs -a tags=nova";;
-    --glance) noseargs="$noseargs -a tags=glance";;
     --swift) noseargs="$noseargs -a tags=swift";;
+    --glance) noseargs="$noseargs -a tags=glance";;
+    --glance-image-sync) noseargs="$noseargs -a tags=glance-image-sync";;
     --glance-swift) noseargs="$noseargs -a tags=glance-swift";;
     --cinder) noseargs="$noseargs -a tags=cinder";;
     --ceilometer) noseargs="$noseargs -a tags=ceilometer";;

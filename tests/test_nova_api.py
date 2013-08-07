@@ -1,5 +1,6 @@
 from resttest.jsontools import nested_search
 from resttest.resttest import Retryable
+from time import sleep
 from utils import SERVICES
 import tests
 import os
@@ -127,6 +128,43 @@ class TestNovaAPI(tests.FunctionalTest):
             nova.GET_with_keys_eq("/images/%s" % i,
                                   {"/image/status": "ACTIVE"},
                                   code=200)
+
+    def test_005_upload_glance_image_sync(self):
+        initrd = self.config['environment']['initrd']
+        headers = glance_headers("test-ramdisk-glance-image-sync",
+                                  initrd,
+                                  "ari")
+        md5 = md5sum_file(initrd)
+        with open(initrd, "rb") as image_file:
+            r, data = glance.POST_raw_with_keys_eq(
+                "/images",
+                {"/image/name": "test-ramdisk-glance-image-sync",
+                 "/image/checksum": md5},
+                headers=headers,
+                body=image_file,
+                code=201)
+    test_005_upload_glance_image_sync.tags = ['glance-image-sync']
+
+    def test_006_verify_glance_image_sync(self):
+        api_nodes = self.config['glance-image-sync']['api_nodes']
+        r, d = glance.GET("/images?name=test-ramdisk-glance-image-sync")
+        i = d['images'][0]['id']
+        # give some time to allow the sync to happen
+        sleep(10)
+        for api in api_nodes.split(','):
+            glance.GET("/images/%s" % i, code=200)
+    test_006_verify_glance_image_sync.tags = ['glance-image-sync']
+
+    def test_007_delete_glance_image_sync(self):
+        api_nodes = self.config['glance-image-sync']['api_nodes']
+        r, d = glance.GET("/images?name=test-ramdisk-glance-image-sync")
+        i = d['images'][0]['id']
+        glance.DELETE("/images/%s" % i, code=200)
+        # give some time to allow the sync to happen
+        sleep(10)
+        for api in api_nodes.split(','):
+            glance.GET("/images/%s" % i, code=404)
+    test_007_delete_glance_image_sync.tags = ['glance-image-sync']
 
     def test_verify_not_blank_limits(self):
         r, d = nova.GET_with_keys_ne("/limits",
