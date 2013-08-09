@@ -37,7 +37,7 @@ admin = SERVICES['keystone-admin']
 
 class TestKeystoneAPI(tests.FunctionalTest):
 
-    tags = ['nova', 'nova-api', 'keystone']
+    tags = ['nova', 'nova-api', 'keystone', 'nova-neutron']
 
     def test_keystone_d5_failed_auth(self):
         r.POST('/tokens',
