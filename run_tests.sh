@@ -17,6 +17,7 @@ function usage {
   echo "  --cinder                 Run all tests tagged as \"cinder\"."
   echo "  --ceilometer             Run all tests tagged as \"ceilometer\"."
   echo "  --neutron                Run all tests tagged as \"neutron\"."
+  echo "  --nova-neutron           Run all tests tagged as \"nova-neutron\"."
   echo "  --version <version>      Run tests specific to packageset version <version> (diablo-d5, diablo-final, etc)"
   echo "  -h, --help               Print this usage message"
   echo ""
@@ -51,6 +52,7 @@ while [ ${#@} -gt 0 ]; do
     --cinder) noseargs="$noseargs -a tags=cinder";;
     --ceilometer) noseargs="$noseargs -a tags=ceilometer";;
     --neutron) noseargs="$noseargs -a tags=neutron";;
+    --nova-neutron) noseargs="$noseargs -a tags=nova-neutron";;
     -v|--version)
           if [ "$2" == "" ]; then
               echo "Must specify a package set (diablo-final, etc) with --version"
