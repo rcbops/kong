@@ -38,26 +38,6 @@ class TestNovaAPI(tests.FunctionalTest):
 
     tags = ['nova', 'nova-api', 'nova-neutron']
 
-#    @Retryable
-#    def ping_host(self, address):
-#        """
-#        Ping a host ever <interval> seconds, up to a maximum of <max_wait>
-#        seconds for until the address is succesfully pingable, or the
-#        maximum wait interval has expired
-#        """
-#        import subprocess
-#        try:
-#            retcode = subprocess.call(
-#                'ping -c1 -q %s > /dev/null 2>&1' % (address),
-#                shell=True)
-#            if retcode == 0:
-#                return True
-#        except OSError, e:
-#            print "Error running external ping command: ", e
-#            print retcode
-#            return False
-#        raise AssertionError("Could not ping host %s" % address)
-
     @Retryable
     def ping_host(self, address, netns=None):
         """
@@ -70,9 +50,7 @@ class TestNovaAPI(tests.FunctionalTest):
         if netns:
             ping_command='ip netns exec %s ping -c1 -q %s > /dev/null 2>&1' % (netns, address)
         try:
-            retcode = subprocess.call(
-                'ip netns exec %s ping -c1 -q %s > /dev/null 2>&1' % (netns, address),
-                shell=True)
+            retcode = subprocess.call(ping_command, shell=True)
             if retcode == 0:
                 return True
         except OSError, e:
@@ -80,7 +58,6 @@ class TestNovaAPI(tests.FunctionalTest):
             print retcode
             return False
         raise AssertionError("Could not ping host %s" % address)
-
 
     def test_nova_list_flavors(self):
         r, d = nova.GET("/flavors", code=200)
