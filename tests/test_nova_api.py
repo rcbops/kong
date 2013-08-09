@@ -457,7 +457,7 @@ class TestNovaAPI(tests.FunctionalTest):
 
     test_925_security_group_delete.tags = ['nova-neutron']
 
-    def test_950_delete_security_group_rule_diablo_final(self):
+    def test_901_delete_security_group_rule_diablo_final(self):
         data = nova.GET("/os-security-groups")[1]
         gid = nested_search("/security_groups/*/name=kongsec/id",
                             data)[0]
@@ -469,14 +469,11 @@ class TestNovaAPI(tests.FunctionalTest):
         except ValueError:
             pass
 
-    test_950_delete_security_group_rule_diablo_final.tags = ['nova']
-
-    def test_955_delete_security_group_diablo_final(self):
+    def test_902_delete_security_group_diablo_final(self):
         gid = nested_search("/security_groups/*/name=kongsec/id",
                             nova.GET("/os-security-groups")[1])[0]
         nova.DELETE("/os-security-groups/%s" % gid, timeout=60,
                     delay=5, code=404)
-    test_955_delete_security_group_diablo_final.tags = ['nova']
 
     def test_960_net_delete(self):
         resp, body = neutron.GET(
