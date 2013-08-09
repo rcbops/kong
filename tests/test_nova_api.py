@@ -271,6 +271,8 @@ class TestNovaAPI(tests.FunctionalTest):
             {'/network/status': 'ACTIVE'},
             code=200, timeout=20, delay=2)
 
+    test_165_net_create.tags = ['nova-neutron']
+
     def test_170_subnet_create(self):
         network_id = nested_search(
             'networks/*/name=%s/id' % self.config['nova']['network_label'],
@@ -284,6 +286,8 @@ class TestNovaAPI(tests.FunctionalTest):
                   'cidr': '192.168.78.0/29',
                   'name': 'test-subnet'}},
             code=201)
+
+    test_170_subnet_create.tags = ['nova-neutron']
 
     def test_190_create_server_neutron(self):
         network_id = nested_search(
@@ -312,8 +316,6 @@ class TestNovaAPI(tests.FunctionalTest):
         netns="qdhcp-%s" % network_id
         if not self.ping_host(ip, netns=netns, delay=5, timeout=200):
             raise AssertionError("Server is active but does not ping")
-
-
 
     test_190_create_server_neutron.tags = ['nova-neutron']
 
