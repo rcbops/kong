@@ -38,17 +38,40 @@ class TestNovaAPI(tests.FunctionalTest):
 
     tags = ['nova', 'nova-api', 'nova-neutron']
 
+#    @Retryable
+#    def ping_host(self, address):
+#        """
+#        Ping a host ever <interval> seconds, up to a maximum of <max_wait>
+#        seconds for until the address is succesfully pingable, or the
+#        maximum wait interval has expired
+#        """
+#        import subprocess
+#        try:
+#            retcode = subprocess.call(
+#                'ping -c1 -q %s > /dev/null 2>&1' % (address),
+#                shell=True)
+#            if retcode == 0:
+#                return True
+#        except OSError, e:
+#            print "Error running external ping command: ", e
+#            print retcode
+#            return False
+#        raise AssertionError("Could not ping host %s" % address)
+
     @Retryable
-    def ping_host(self, address):
+    def ping_host(self, address, netns=None):
         """
         Ping a host ever <interval> seconds, up to a maximum of <max_wait>
         seconds for until the address is succesfully pingable, or the
         maximum wait interval has expired
         """
         import subprocess
+        ping_command='ping -c1 -q %s > /dev/null 2>&1' % (address)
+        if netns:
+            ping_command='ip netns exec %s ping -c1 -q %s > /dev/null 2>&1' % (netns, address)
         try:
             retcode = subprocess.call(
-                'ping -c1 -q %s > /dev/null 2>&1' % (address),
+                'ip netns exec %s ping -c1 -q %s > /dev/null 2>&1' % (netns, address),
                 shell=True)
             if retcode == 0:
                 return True
@@ -286,7 +309,8 @@ class TestNovaAPI(tests.FunctionalTest):
                                      code=200, timeout=60, delay=5)
         ip = d['server']['addresses'][self.config['nova']['network_label']][0]['addr']
 
-        if not self.ping_neutron_host(ip, delay=5, timeout=200):
+        netns="qdhcp-%s" % network_id
+        if not self.ping_host(ip, netns=netns, delay=5, timeout=200):
             raise AssertionError("Server is active but does not ping")
 
 
