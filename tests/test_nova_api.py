@@ -280,7 +280,8 @@ class TestNovaAPI(tests.FunctionalTest):
                                  {"name": "testing server creation", 
                                  "imageRef": image, "flavorRef": flavor, 
                                  "max_count": 1, "min_count": 1, 
-                                 "networks": [{"uuid": network_id}]
+                                 "networks": [{"uuid": network_id}],
+                                 "security_groups": [{"name": "test-sec-group"}]
                                  }
                              },
                         code=202) 
@@ -291,7 +292,7 @@ class TestNovaAPI(tests.FunctionalTest):
         ip = d['server']['addresses'][self.config['nova']['network_label']][0]['addr']
 
         netns="qdhcp-%s" % network_id
-        if not self.ping_host(ip, netns=netns, delay=5, timeout=200):
+        if not self.ping_host(ip, netns=netns, delay=5, timeout=120):
             raise AssertionError("Server is active but does not ping")
 
     test_190_create_server_neutron.tags = ['nova-neutron']
