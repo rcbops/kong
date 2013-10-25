@@ -71,6 +71,24 @@ class TestCinderAPI(tests.FunctionalTest):
         if new_volumes != target_volumes:
             raise AssertionError('Could not update quotas')
 
+    def test_008_update_quotas_havana(self):
+        resp, body = cinder.GET('/os-quota-sets/%s' % user, code=200)
+        current_volumes = body['quota_set']['volumes']
+        target_volumes = current_volumes + 1
+
+        cinder.PUT(
+            '/os-quota-sets/%s' % user,
+            body={"quota_set":
+            {"tenant_id": "%s" % user,
+            "volumes": target_volumes}},
+            code=200)
+
+        resp, body = cinder.GET('/os-quota-sets/%s' % user, code=200)
+        new_volumes = body['quota_set']['volumes']
+
+        if new_volumes != target_volumes:
+            raise AssertionError('Could not update quotas')
+
     def test_009_create_volume_type(self):
         cinder.POST(
             '/types', body={"volume_type":

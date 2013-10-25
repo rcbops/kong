@@ -116,5 +116,11 @@
     },
     "test_keystone_v2_03_get_tenant_list_diablo": {
         "max": "diablo-final"
+    },
+    "test_008_update_quotas": {
+	"max": "grizzly"
+    },
+    "test_008_update_quotas_havana": {
+	"min": "havana"
     }
 }
