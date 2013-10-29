@@ -275,6 +275,9 @@ class TestNovaAPI(tests.FunctionalTest):
                                nova.GET("/flavors")[1])[0]
 
 
+        # TODO(brett): Investigate performance.
+        # It's now taking 90+ seconds for server to go active on Cent (Havana).
+        # Don't see any obvious timeouts or exceptions in cluster.
         r, d = nova.POST("/servers",
                         body={"server": 
                                  {"name": "testing server creation", 
@@ -288,7 +291,7 @@ class TestNovaAPI(tests.FunctionalTest):
         server_id = d['server']['id']
         r, d = nova.GET_with_keys_eq("/servers/%s" % server_id,
                                      {"/server/status": "ACTIVE"},
-                                     code=200, timeout=60, delay=5)
+                                     code=200, timeout=120, delay=5)
         ip = d['server']['addresses'][self.config['nova']['network_label']][0]['addr']
 
         netns="qdhcp-%s" % network_id
