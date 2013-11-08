@@ -17,6 +17,9 @@ class KongRequester(JSONRequester):
         self.section = section
         self.endpoint, self.token, self.services, self.data = \
             self._init_keystone(service, target)
+        if service == "image" or service == "glance":
+            if self.endpoint[-3:] !=  "/v1":
+                self.endpoint += "/v1"
         self.request_transformers += [base_url(self.endpoint)]
         self.request_transformers += [wrap_headers(
             {"X-Auth-Token": self.token})]
